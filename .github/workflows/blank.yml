@@ -40,7 +40,7 @@ jobs:
           sudo apt install gpg -y
           echo "${{ secrets.PUB_KEY }}" > pub.key
           echo "${{ secrets.PRIV_KEY }}" > priv.key
-          ls -al ~/.gnupg/gpg.conf
+          gpg --list-secret-keys
           gpg --batch --import pub.key
           gpg --batch --import priv.key
           gpg --decrypt --batch --passphrase "${{ secrets.KEY_STORE_PASSPHRASE }}"  $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
