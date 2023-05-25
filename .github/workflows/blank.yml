@@ -51,6 +51,6 @@ jobs:
           echo "##########################################"
           echo ${{ secrets.KEY_STORE_PASSPHRASE }}
           echo "##########################################"
-          echo "${{ secrets.KEY_STORE_PASSPHRASE }}" | gpg --decrypt --batch --yes --passphrase-fd 0 $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
+          gpg --decrypt --batch --yes --pinentry-mode=loopback --passphrase "${{ secrets.KEY_STORE_PASSPHRASE }}" $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
           echo "##########################################"
           cat $GITHUB_WORKSPACE/config_EOC.xml
