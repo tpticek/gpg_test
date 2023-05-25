@@ -40,8 +40,8 @@ jobs:
           sudo apt install gpg -y
           echo "${{ secrets.PUB_KEY }}" > pub.key
           echo "${{ secrets.PRIV_KEY }}" > priv.key
-          gpg --list-secret-keys
           gpg --batch --import pub.key
           gpg --batch --import priv.key
+          gpg -k
           echo ${{ secrets.KEY_STORE_PASSPHRASE }} | gpg --decrypt --passphrase "mypassphrase" --batch --quiet --yes --no-use-agent $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
           cat $GITHUB_WORKSPACE/config_EOC.xml
