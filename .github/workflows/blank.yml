@@ -38,10 +38,19 @@ jobs:
       - name: Decode key file
         run: |
           sudo apt install gpg -y
+          echo "##########################################"
           echo "${{ secrets.PUB_KEY }}" > pub.key
+          echo "##########################################"
           echo "${{ secrets.PRIV_KEY }}" > priv.key
+          echo "##########################################"
           gpg --batch --import pub.key
+          echo "##########################################"
           gpg --batch --import priv.key
+          echo "##########################################"
           gpg -k
+          echo "##########################################"
+          echo ${{ secrets.KEY_STORE_PASSPHRASE }}
+          echo "##########################################"
           echo ${{ secrets.KEY_STORE_PASSPHRASE }} | gpg --decrypt --passphrase "mypassphrase" --batch --quiet --yes --no-use-agent $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
+          echo "##########################################"
           cat $GITHUB_WORKSPACE/config_EOC.xml
