@@ -41,5 +41,5 @@ jobs:
           echo "${{ secrets.KEY_64 }}" > geek.key
           gpg --batch --import geek.key
           echo "${{ secrets.KEY_STORE_PASSPHRASE }}"
-          gpg --decrypt --passphrase "${{ secrets.KEY_STORE_PASSPHRASE }}" --batch $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
+          gpg --decrypt --batch --passphrase "${{ secrets.KEY_STORE_PASSPHRASE }}"  $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
           echo $GITHUB_WORKSPACE/config_EOC.xml
