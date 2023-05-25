@@ -39,6 +39,7 @@ jobs:
         run: |
           sudo apt install gpg -y
           echo "${{ secrets.KEY_64 }}" > geek.key
-          gpg --import geek.key --passphrase "${{ secrets.KEY_STORE_PASSPHRASE }}"
+          gpg --import geek.key
+          echo "${{ secrets.KEY_STORE_PASSPHRASE }}"
           gpg --decrypt --passphrase "${{ secrets.KEY_STORE_PASSPHRASE }}" --batch $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
-
+          echo $GITHUB_WORKSPACE/config_EOC.xml
