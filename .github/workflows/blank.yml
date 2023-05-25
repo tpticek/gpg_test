@@ -47,10 +47,6 @@ jobs:
           echo "##########################################"
           gpg --batch --import priv.key
           echo "##########################################"
-          gpg -k
-          echo "##########################################"
-          echo ${{ secrets.KEY_STORE_PASSPHRASE }}
-          echo "##########################################"
           gpg --decrypt --batch --yes --pinentry-mode=loopback --passphrase "${{ secrets.KEY_STORE_PASSPHRASE }}" $GITHUB_WORKSPACE/config_EOC.xml.asc > $GITHUB_WORKSPACE/config_EOC.xml
           echo "##########################################"
           cat $GITHUB_WORKSPACE/config_EOC.xml
