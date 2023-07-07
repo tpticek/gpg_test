@@ -18,7 +18,14 @@ jobs:
         with:
           ref: ansible
 
-      - name: Prepare the folder
+      - name: Check ansible folder
         run: |
+          cd ansible-files
+          pwd
+          ls -alh
+
+      - name: Check GITHUB_WORKSPACE
+        run: |
+          cd cd $GITHUB_WORKSPACE
           pwd
           ls -alh
