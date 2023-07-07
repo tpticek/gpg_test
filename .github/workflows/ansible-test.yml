@@ -24,3 +24,8 @@ jobs:
           pwd
           ls -alh
 
+
+      - name: Check new action folder
+        run: |
+          pwd
+          ls -alh
