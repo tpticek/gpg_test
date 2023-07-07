@@ -5,26 +5,16 @@ jobs:
   deployment:
     runs-on: ubuntu-latest   
     steps:
-      - name: Prepare the folder
-        run: | 
-          cd $GITHUB_WORKSPACE
-          mkdir ansible-files
-          cd ansible-files
-          pwd
-          ls -alh
+
     
       - name: Check out Ansible repository code
         uses: actions/checkout@v3
         with:
           ref: ansible
+          path: ansible-files
 
       - name: Check ansible folder
         run: |
           pwd
           ls -alh
 
-      - name: Check GITHUB_WORKSPACE
-        run: |
-          cd $GITHUB_WORKSPACE
-          pwd
-          ls -alh
