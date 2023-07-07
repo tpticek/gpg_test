@@ -1,0 +1,19 @@
+name: VM PREPROD PROD Shared Workflow | EOC-TCS 
+on:
+  workflow_dispatch:
+jobs:
+  deployment:
+    runs-on: ubuntu-latest   
+    steps:
+      - name: Check out Ansible repository code
+        uses: actions/checkout@v3
+        with:
+          path: som-ecm-eoc
+          ref: ansible
+          token: ${{ secrets.token }}
+
+      - name: Package the branch files
+        run: | 
+          cd $GITHUB_WORKSPACE
+          pwd
+          ls -alh
