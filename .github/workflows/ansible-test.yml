@@ -15,6 +15,7 @@ jobs:
 
       - name: Check ansible folder
         run: |
+          cd ansible-files
           pwd
           ls -alh
 
