@@ -20,12 +20,12 @@ jobs:
 
       - name: Check ansible folder
         run: |
-          cd ansible-files
+          cd $GITHUB_WORKSPAC/ansible-files
           pwd
           ls -alh
 
       - name: Check GITHUB_WORKSPACE
         run: |
-          cd cd $GITHUB_WORKSPACE
+          cd $GITHUB_WORKSPACE
           pwd
           ls -alh
