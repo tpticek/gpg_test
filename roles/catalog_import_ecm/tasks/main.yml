@@ -1,0 +1,45 @@
+---
+# tasks file for catalog_import_ecm
+  - name: Create LOG folder
+    file:
+      path: '{{ log_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: diff_catalog_result.changed
+
+  - name: Create EOC-ECM LOG folder
+    file:
+      path: '{{ log_dir_eocecm }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: diff_catalog_result.changed
+
+  - name: Catalog Import using catalogImport.sh command with async modification
+    shell: './catalogImport.sh username={{ ecm_app_user }} password={{ ecm_app_pass }} server_url={{ ecm_app_http_or_https }}://{{ ecm_app_ip }}:8001/ecm import_file={{ ecm_catalog_path }}/{{ item }} deleteProjectBeforeImport={{  ecm_catalog_delete_proj }} | tee {{ log_dir_eocecm }}/{{ ecm_file_name }}-catalogImport_sh_{{ item }}_{{ date_and_time }}.log'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/designer/env'
+    with_items: '{{ ecm_catalog_list }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'catalogImport_sh'
+    when: diff_catalog_result.changed
+    async: 3600
+    poll: 0
+    
+  - name: Wait for the catalog import to finish
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    async_status:
+      jid: "{{ item.ansible_job_id }}"
+    register: import_result
+    with_items: "{{ catalogImport_sh.results }}"
+    until: "import_result.stdout is defined and 'Import completed' in import_result.stdout "
+    failed_when: "import_result.stdout is defined and ('ERROR - Startup exception' in import_result.stdout or 'ERROR - An error has occurred. Log may contain additional details.' in import_result.stdout or 'Import Failed' in import_result.stdout or 'Catalog import not executed' in import_result.stdout )"
+    delay: 300 
+    retries: 6

@@ -1,0 +1,50 @@
+---
+  
+  - name: Stop EOC SOM Side A
+    hosts:
+      - no004eocprod-a
+      - no006eocprod-a
+    roles:
+      - role: jboss_stop_eoc
+        when: eoc_stop_side_A == 'yes'
+
+  - name: Stop ECM SOM Side A
+    hosts:
+      - no002ecmprod-a
+    roles:
+      - role: jboss_stop_ecm
+        when: ecm_stop_side_A == 'yes'
+
+
+  - name: Stop EOC SOM Side B
+    hosts:
+      - no004eocprod-b
+      - no006eocprod-b
+    roles:
+      - role: jboss_stop_eoc
+        when: eoc_stop_side_B == 'yes'
+
+  - name: Stop ECM SOM Side B
+    hosts:
+      - no002ecmprod-b
+    roles:
+      - role: jboss_stop_ecm
+        when: ecm_stop_side_B == 'yes'
+
+
+# Stop EOC&ECM SOM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_stop_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='yes' ecm_stop_side_A='yes'   eoc_stop_side_B='yes' ecm_stop_side_B='yes'  "
+
+# Stop EOC&ECM SOM Side A
+# ansible-playbook -i inventory-eocecm eoc_ecm_stop_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='yes' ecm_stop_side_A='yes'   eoc_stop_side_B='no' ecm_stop_side_B='no'  "
+
+# Stop EOC&ECM SOM Side B
+# ansible-playbook -i inventory-eocecm eoc_ecm_stop_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='no' ecm_stop_side_A='no'  eoc_start_side_A='no' eoc_stop_side_B='yes' ecm_stop_side_B='yes'  "
+
+# Stop EOC SOM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_stop_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='yes' ecm_stop_side_A='no'   eoc_stop_side_B='yes' ecm_stop_side_B='no'  "
+
+# Stop ECM SOM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_stop_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='no' ecm_stop_side_A='yes'  eoc_start_side_A='no' eoc_stop_side_B='no' ecm_stop_side_B='yes'  "
+
+

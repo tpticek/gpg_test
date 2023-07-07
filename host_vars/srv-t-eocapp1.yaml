@@ -1,0 +1,6 @@
+eoc_nodeid_main: EOC_PROD_UI1
+eoc_nodeid_auth: auth_prod_1
+eoc_nodeid_order_manager: OM_prod_1
+eoc_nodeid_service_registry: sr_prod_1
+eoc_nodeid_project_manager: pmm_prod_1
+eoc_nodeid_project_producer: producer

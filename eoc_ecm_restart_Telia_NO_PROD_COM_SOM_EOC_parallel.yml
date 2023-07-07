@@ -1,0 +1,57 @@
+---
+  # - name: Restart Sentinel
+  #   hosts: no001ecmprod-a
+  #   roles:
+  #     - sentinel_stop
+  #     - sentinel_start
+
+  - name: Stop EOC COM&SOM Side A
+    hosts:
+      - no001eocprod-a
+      - no002eocprod-a
+      - no003eocprod-a
+      - no004eocprod-a
+      - no005eocprod-a
+      - no006eocprod-a
+    roles:
+      - role: jboss_stop_eoc
+
+
+  - name: Start EOC COM&SOM Side A
+    hosts:
+      - no001eocprod-a
+      - no002eocprod-a
+      - no003eocprod-a
+      - no004eocprod-a
+      - no005eocprod-a
+      - no006eocprod-a
+    roles:
+      - jboss_start_eoc
+
+
+
+  - name: Stop EOC COM&SOM Side B
+    hosts:
+      - no001eocprod-b
+      - no002eocprod-b
+      - no003eocprod-b
+      - no004eocprod-b
+      - no005eocprod-b
+      - no006eocprod-b
+    roles:
+      - jboss_stop_eoc
+
+
+  - name: Start EOC COM&SOM Side B
+    hosts:
+      - no001eocprod-b
+      - no002eocprod-b
+      - no003eocprod-b
+      - no004eocprod-b
+      - no005eocprod-b
+      - no006eocprod-b
+    roles:
+      - jboss_start_eoc
+
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PROD_COM_SOM_EOC_parallel.yml -v

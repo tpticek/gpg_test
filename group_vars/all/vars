@@ -1,0 +1,229 @@
+---
+  date_and_time: '{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}'
+
+
+
+  ###################
+  # env_preparation #
+  ###################
+  user_for_jboss: jboss
+  user_for_eocecm: eocecm
+  group_for_jboss: eocecm
+  group_for_eocecm: eocecm
+  deploy_to_env: DEV1
+  # DEV1/DEV2/SIT1/SIT2
+  # git_commit_id:  # ${bamboo.planRepository.1.revision}  Added as command line var
+  #########
+  # Paths #
+  #########
+  folder_dest: /app
+  log_dir: '{{ logs_dir_server }}'
+  log_dir_eocecm: '{{ log_dir }}/log_eocecm/{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}/{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}'
+  log_dir_jboss: '{{ log_dir }}/log_jboss/{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}/{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}'
+  log_dir_karaf: '{{ log_dir }}/log_karaf/{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}/{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}'
+  # symlink_eoc_dir: '{{ folder_dest }}/Ericsson/OrderCare_20.0_R1C_1_0020' # Added by group_vars
+  # symlink_ecm_dir: '{{ folder_dest }}/Ericsson/CatalogManager_20.0_R1C_1_0020' # Added by group_vars
+  jboss_eoc_dir: '{{ jboss_dir }}'
+  jboss_ecm_dir: '{{ jboss_dir }}'
+  jboss_dir: '{{ folder_dest }}/jboss/eocecm_20.0_R1C_1_0020'
+  sentinel_dir: '{{ folder_dest }}/Sentinel/SentinelRMSServer8.6.2/Linux/bin'
+
+  # repo_dir_dds: /tmp/repo # Added as command line var
+  cicd_work_dir_server: '{{ folder_dest }}/working_dir_cicd'
+  repo_dir_server: '{{ cicd_work_dir_server }}/repo'
+  rollback_dir_server: '{{ cicd_work_dir_server }}/rollback'
+  tracking_dir_server: '{{ cicd_work_dir_server }}/tracking'
+  logs_dir_server: '{{ cicd_work_dir_server }}/logs'
+  config_backup_dir_server: '{{ cicd_work_dir_server }}/backup'
+  upgrade_sql_dir_server: '{{ cicd_work_dir_server }}/upgrade'
+
+  # env_variables
+  java_home_var: '{{ folder_dest }}/java/current_jdk'
+
+  ##############
+  # Stop JBoss #
+  ##############
+
+  eoc_deploy: 'yes'
+  ecm_deploy: 'yes'
+
+  modules_eoc_deploy: 'yes'
+  modules_eoc_deploy_list:
+    - standalone_pmm
+    - standalone_sr
+    - standalone_OM1
+    - standalone_auth1
+
+  modules_ecm_deploy: 'yes'
+  modules_ecm_deploy_list:
+    - standalone_ecmUI
+    - standalone_oma
+
+
+  #############
+  # ecm_setup #
+  #############
+
+  # deploy.sh ECM
+  ecm_app_name: ecm20
+  ecm_app_version: 1
+  ecm_metadata_path: '{{ repo_dir_server }}/06-METADATA/1-ECM'
+  ecm_create_DB_app: 'true'
+  ecm_generate_wsdl: 'false'
+  ecm_file_name: ecm_log
+  #
+  # configImport.sh ECM
+  ecm_import_config: 'yes'
+  ecm_create_DB_app_import: 'true'
+  ecm_config_import_file: '{{ repo_dir_server }}/10-ENV_CONFIG/{{ ecm_config_filename }}'
+  ecm_config_filename: 'config_ECM_{{ eocecm_environment }}.xml'
+
+  # catalog_port: 15000
+  # ecm_cluster_ListenerPort: 33333
+  #
+  # # generateUpgradeSQL.sh ECM
+  ecm_upgrade_dir: '{{ upgrade_sql_dir_server }}/ECM'
+  ecm_sql_file_before: '{{ ecm_upgrade_dir }}/ecm_upgradeSQL_{{ date_and_time }}.sql'
+  # ecm_sql_file_before: '/app/Ericsson/CatalogManager_0020/designer/env/upgrade_ecm.sql'
+  ecm_single_file: 'true'
+  ecm_sql_file_after: '{{ ecm_upgrade_dir }}/ecm_upgradeSQL_{{ date_and_time }}_after.sql'
+  #
+  # # runPackage.sh ECM
+  # ecm_config_node: ECM_01
+  # ecm_webapp_name: ecm
+  # ecm_JNDI: EricssonConfig
+  # ecm_war_dir: '{{ symlink_ecm_dir }}/war'
+
+  # configExport.sh
+  ecm_export_password: 'true'
+  ecm_config_export_file: '{{ config_backup_dir_server }}/configExport_ecm_{{ date_and_time }}_{{ git_commit_id }}.xml'
+
+  # execute custom SQL created by developers EOC
+  ecm_execute_custom_SQL: 'yes'
+  ecm_custom_SQL_file: ECM_main.sql
+  ecm_custom_SQL_path: '{{ repo_dir_server }}/01-SQL/ECM'
+
+  # catalog import
+  ecm_app_http_or_https: http
+  ecm_catalog_import: 'yes'
+  ecm_catalog_list:
+    - exportedCatalog.zip
+  ecm_catalog_path: '{{ repo_dir_server }}/02-CATALOG/PI_Sprint_Latest'
+  ecm_app_user: upadmin
+  ecm_app_pass: upadmin
+  ecm_catalog_delete_proj: 'true'
+  # ecm_app_ip: #192.168.135.211 # Added by group_vars
+
+  #############
+  # eoc_setup #
+  #############
+  # # deploy.sh EOC
+  eoc_app_name: eoc20
+  eoc_app_version: '1'
+  eoc_metadata_path: '{{ repo_dir_server }}/06-METADATA/2-EOC'
+  eoc_create_DB_app: 'true'
+  eoc_generate_wsdl: 'true'
+  eoc_file_name: eoc_log
+  karaf_file_name: karaf_log
+  # configImport.sh EOC
+  eoc_import_config: 'yes'
+  eoc_create_DB_app_import: 'true'
+  eoc_config_import_file: '{{ repo_dir_server }}/10-ENV_CONFIG/{{ eoc_config_filename }}'
+  eoc_config_filename: 'config_EOC_{{ eocecm_environment }}.xml'
+  # eoc_cluster_ListenerPort: 33333
+
+  # generateUpgradeSQL.sh EOC
+  eoc_upgrade_dir: '{{ upgrade_sql_dir_server }}/EOC'
+  # eoc_sql_file_before: '{{ eoc_upgrade_dir }}/EOCupgradeSQL__{{ date_and_time }}.sql'
+  eoc_sql_file_before: '{{ eoc_upgrade_dir }}/eoc_upgradeSQL_{{ date_and_time }}.sql'
+  eoc_single_file: 'true'
+  eoc_sql_file_after: '{{ eoc_upgrade_dir }}/eoc_upgradeSQL_{{ date_and_time }}_after.sql'
+  # sql_postUpgrade: '{{ symlink_eoc_dir }}/modules/eoc/DDL/postUpgrade.sql'
+  #
+  # # runPackage.sh EOC
+  # eoc_config_node: PE_UI
+  # eoc_webapp_name: eoc
+  # eoc_JNDI: EricssonConfig
+  # eoc_war_dir: '{{ symlink_eoc_dir }}/war'
+
+  # configExport.sh
+  eoc_export_password: 'true'
+  eoc_config_export_file: '{{ config_backup_dir_server }}/configExport_eoc_{{ date_and_time }}_{{ git_commit_id }}.xml'
+
+  # execute custom SQL created by developers EOC
+  eoc_execute_custom_SQL: 'yes'
+  eoc_custom_SQL_file: EOC_main.sql
+  eoc_custom_SQL_path: '{{ repo_dir_server }}/01-SQL/EOC'
+
+  # deploy om.war
+  eoc_deploy_om_war_file: '{{ repo_dir_server }}/11-OM_DASHBOARD/{{ eoc_deploy_om_war_filename }}'
+  eoc_deploy_om_war_filename: 'om_{{ eocecm_environment }}.war'
+  eoc_deploy_om_remote_src: yes
+
+  # deploy sr.war
+  eoc_deploy_sr_war_file: '{{ repo_dir_server }}/12-SR_DASHBOARD/{{ eoc_deploy_sr_war_filename }}'
+  eoc_deploy_sr_war_filename: 'sr_{{ eocecm_environment }}.war'
+
+  # eoc_app_ip: #192.168.135.211 # Added by group_vars
+  #############
+  # Database #
+  ############
+
+#   sys_db_user: SYSTEM
+#   sys_db_pass: oracle4U
+  # db_host: 172.28.19.86
+
+  # db_host: # 172.28.19.86 # Added by group_vars
+
+#   # ako su baze na razlicitim serverima onda se treba izbrisati ova varijabla i staviti
+#   # tocne vrijednosti u ecm_db_host i eoc_db_host
+#   db_sid_servicename: orcl
+
+
+  ###############
+  # ecm_db_init #
+  ###############
+
+  # sql_ecm_user_create: '{{ symlink_ecm_dir }}/DDL/userCreation_ECM.sql'
+  # sql_CW_ecm: '{{ symlink_ecm_dir }}/DDL/CW.sql'
+  # sql_catalog_ecm: '{{ symlink_ecm_dir }}/modules/catalog/DDL/catalog.sql'
+  #
+  # sys_db_user_ecm: '{{ sys_db_user }}'
+  # sys_db_pass_ecm: '{{ sys_db_pass }}'
+  # ecm_database_string: '{{ ecm_db_user }}/{{ ecm_db_pass }}@{{ ecm_db_host }}:{{ ecm_db_port }}{{ ecm_sid_or_servicename }}{{ ecm_db_sid_servicename }}'
+  ecm_database_string: '{{ ecm_db_user }}/{{ ecm_db_pass }}@jdbc:edb://{{ ecm_db_host }}:5444/{{ ecm_db_database }}'
+  # ecm_db_user: ecm20 # Added by group_vars
+  # ecm_db_pass: ECM20 # Added by group_vars
+  ecm_db_host: '{{ db_host }}'
+  # ecm_db_port: 1521
+  # ecm_sid_or_servicename: '/'
+  # ecm_db_sid_servicename: '{{ db_sid_servicename }}'
+  ecm_db_database: edb
+
+  ###############
+  # eoc_db_init #
+  ###############
+
+  # sql_CW_eoc: '{{ symlink_eoc_dir }}/DDL/CW.sql'
+  # sql_eoc_user_create: '{{ symlink_eoc_dir }}/DDL/userCreation_EOC.sql'
+  # sql_cwl_address: '{{ symlink_eoc_dir }}/modules/address/DDL/cwl_address.sql'
+  # sql_cwl_customer: '{{ symlink_eoc_dir }}/modules/customer/DDL/cwl_customer.sql'
+  # sql_modules: '{{ symlink_eoc_dir }}/modules/modules.sql'
+  #
+  # sys_db_user_eoc: '{{ sys_db_user }}'
+  # sys_db_pass_eoc: '{{ sys_db_pass }}'
+  # eoc_database_string: eoc20/EOC20@jdbc:edb://EOC_DATABASE_IP:5444/edb
+  eoc_database_string: '{{ eoc_db_user }}/{{ eoc_db_pass }}@jdbc:edb://{{ eoc_db_host }}:5444/{{ eoc_db_database }}'
+  # eoc_db_user: eoc20 # Added by group_vars
+  # eoc_db_pass: EOC20 # Added by group_vars
+  eoc_db_host: '{{ db_host }}'
+  # eoc_db_host: 10.75.18.164
+  # eoc_db_port: 1521
+  # eoc_sid_or_servicename: '/'
+  # eoc_db_sid_servicename: '{{ db_sid_servicename }}'
+  eoc_db_database: edb
+
+  # restart default values
+  eoc_restart: true
+  ecm_restart: true
+  sentinel_restart: true

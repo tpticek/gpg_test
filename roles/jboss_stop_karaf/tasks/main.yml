@@ -1,0 +1,19 @@
+---
+# tasks file for jboss_stop_eoc
+# ovo ime EOC i process bi moga stavit u defaults folder ka varijablu pa mogu onda za ECM lagano prebacit
+  # - name: Stop JBoss - EOC
+  #   shell: "kill $(ps -ef |grep standalone_EOC_PE_UI1 |grep java |awk '{print $2}')"
+  #   args:
+  #     chdir: "/app/jboss/eocecm_0020/bin"
+    # become: yes
+    # become_user: "{{ user_for_jboss }}"
+  #   ignore_errors: True
+
+
+################# standalone_producer #################
+
+  - name: Stop Ordering Service API - Apache Karaf
+    shell: "systemctl stop {{ ordering_api_service_name }}"
+    become: yes
+    # ignore_errors: True
+    when: eoc_nodeid_karaf is defined

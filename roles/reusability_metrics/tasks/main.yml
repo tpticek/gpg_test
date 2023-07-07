@@ -1,0 +1,14 @@
+---
+# tasks file for common_vs_local_eoc_sql
+
+  - name: Reusability metrics - Norway Mobile
+    include: Reusability_metrics_NO_Mobile.yml
+    when: eocecm_environment == 'SIT1_NO_Mobile_SOM'
+    
+  - name: Reusability metrics - Finland
+    include: Reusability_metrics_FI.yml
+    when: eocecm_environment == 'SIT_FI'
+
+  - name: Reusability metrics - Lithuania
+    include: Reusability_metrics_LT.yml
+    when: eocecm_environment == 'SIT1_LT'

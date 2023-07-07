@@ -1,0 +1,13 @@
+---
+# defaults file for artifactory_download
+# build_library_name: 'telia_common'
+# artifactory_download_dir: '{{ repo_dir_server }}/03-LIB/2-EOC-MobileConnectivity_Common/templates'
+
+artifactory_username: somms-machine
+artifactory_password: 7TvcHG3cHXpgudvh
+
+artifactory_repo: 'https://diva.teliacompany.net/artifactory/somms-generic-local'
+artifactory_repo_folder_path: 'COMMON/{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}/{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}'
+artifactory_file: '{{ build_library_name }}.jar'
+
+artifactory_log_file: '{{ log_dir_eocecm }}/artifactory_download_{{ build_library_name }}_{{ date_and_time }}.log'

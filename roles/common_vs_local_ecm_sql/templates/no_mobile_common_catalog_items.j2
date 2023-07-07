@@ -1,0 +1,7 @@
+\echo '####### Common Mobile Catalog items #######'
+\echo ''
+select count(*) from cwpc_itemattribute_v where catalogobjecttype = 'item' and itemattributecode <> 'version' and itemcode in (select baseitemcode from cwpc_item where (itemcode like 'CFSS_NO%' or itemcode like 'RFSS_NO%' or itemcode like '%RS_NO%'));
+
+\echo '####### Common Communication Catalog items #######'
+
+select count(*) from cwpc_itemattribute_v where catalogobjecttype = 'item' and itemattributecode <> 'version' and itemcode in (select baseitemcode from cwpc_item where (itemcode like 'CFSS_L%' or itemcode like 'RFSS_L%' or itemcode like '%RS_L%'));

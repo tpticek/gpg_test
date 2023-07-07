@@ -1,0 +1,5 @@
+Common vs Local EOC SOF items on {{ ansible_date_time.year }}/{{ ansible_date_time.month }}/{{ ansible_date_time.day }} at {{ ansible_date_time.hour }}h{{ ansible_date_time.minute }}min{{ ansible_date_time.second }}s CET:
+
+{{ "\n".join(common_local_eoc_sof_items.stdout_lines[3:])[1:] | regex_replace("\(1 row\)","") | regex_replace("#","\\n")  }}
+Best regards,
+Telia EOC ECM DevOps

@@ -1,0 +1,42 @@
+---
+  - name: Check does SQL ECM folder exist in tracking
+    stat:
+      path: '{{ tracking_dir_server }}/repo/01-SQL/ECM'
+    register: track_ecm_sql_dir_reg
+
+  # - name: Create a empty dir if SQL ECM folder doesn't exist in tracking
+    # file:
+      # path: '{{ tracking_dir_server }}/repo/01-SQL/ECM'
+      # state: directory
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+    # when: not track_eoc_sql_dir_reg.stat.exists
+  # we are creating folder so we can use diff command
+  # this only happends if repo in working is not existing when we
+  # start this playbook so we can't copy to tracking repo
+
+  # - name: Check did SQL ECM files changed
+    # command: 'diff -qr {{ ecm_custom_SQL_path }} {{ tracking_dir_server }}/repo/01-SQL/ECM'
+    # register: diff_ecm_sql_result
+    # changed_when: diff_ecm_sql_result.rc != 0
+    # failed_when: diff_ecm_sql_result.rc == 2
+
+  # - debug:
+      # var: diff_ecm_sql_result
+
+  # - name: Register dummy ECM host with variable DUMMY_DIFF_ECM_SQL_RESULT
+    # add_host:
+      # name: "DUMMY_ECM"
+      # DUMMY_DIFF_ECM_SQL_RESULT: "{{ diff_ecm_sql_result.changed }}"
+
+  # - name: Check is SQL created by developer in place!?
+    # stat:
+      # path: '{{ ecm_custom_SQL_path }}/{{ ecm_custom_SQL_file }}'
+    # register: repo_ecm_main_sql_check
+
+  # - name: Register dummy ECM host with variable DUMMY_REPO_ECM_MAIN_SQL_CHECK
+    # add_host:
+      # name: "DUMMY_ECM"
+      # DUMMY_REPO_ECM_MAIN_SQL_CHECK: "{{ repo_ecm_main_sql_check.stat.exists }}"

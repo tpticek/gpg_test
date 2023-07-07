@@ -1,0 +1,73 @@
+---
+# tasks file for eocecm_configExport
+  - name: Create LOG folder
+    file:
+      path: '{{ log_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Create EOC-ECM LOG folder
+    file:
+      path: '{{ log_dir_eocecm }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+###############################################################################
+#----------Ericsson Order Care - Config Export -------------#
+###############################################################################
+
+  - name: Config Export using configExport.sh command
+    shell: './configExport.sh {{ eoc_database_string }} {{ eoc_app_name }} {{ eoc_app_version }} {{ eoc_export_password }} {{ eoc_config_export_file }} {{ eoc_metadata_path }}'
+    args:
+      chdir: '{{ symlink_eoc_dir }}/designer/env'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'configExport_sh'
+    ignore_errors: True
+
+  - debug:
+      var: configExport_sh
+
+  - name: Save log from command
+    copy:
+      content: "{{ configExport_sh.stdout }}"
+      dest: "{{ log_dir_eocecm }}/{{ eoc_file_name }}-configExport_sh_{{ date_and_time }}.log"
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    # when: deploy_to_env == 'DEV1'
+
+  - name: Add command we used in previous task to log
+    blockinfile:
+      path: "{{ log_dir_eocecm }}/{{ eoc_file_name }}-configExport_sh_{{ date_and_time }}.log"
+      block: |
+        ##################################################################################################################################################
+        ####### {{ configExport_sh.cmd }} #######
+        ##################################################################################################################################################
+      marker: "\n# {mark} ANSIBLE MANAGED BLOCK\n"
+      insertbefore: BOF
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+
+  - fail:
+      msg: 'Following command FAILED: {{ configExport_sh.cmd }}.'
+    when: configExport_sh.rc != 0
+
+
+# ./configExport.sh eoc20_1/EOC@jdbc:edb://172.28.19.86:5444/edb eoc20 1 true /tmp/deploy/xml/config_eoc_backup2020-04-2412:22:41.xml /tmp/deploy/EOC_METADATA
+# if [ $? != "0" ]
+# then
+#   echo "*****************************************************************************"
+#   echo "Exporting config has failed "
+#   echo "*****************************************************************************"
+#      kill $(ps -ef |grep EOC_Deploy |awk '{print $2}')
+# else
+#   echo "*****************************************************************************"
+#   echo "Exporting config finished successfully "
+#   echo "*****************************************************************************"
+# fi

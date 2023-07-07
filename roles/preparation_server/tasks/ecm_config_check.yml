@@ -1,0 +1,56 @@
+---
+  - name: Check does config file exist in repo
+    stat:
+      path: '{{ repo_dir_server }}/10-ENV_CONFIG/{{ ecm_config_filename }}'
+    register: repo_ecm_config_reg
+
+  # - name: Register dummy ECM host with variable DUMMY_REPO_ECM_CONFIG_REG
+    # add_host:
+      # name: "DUMMY_ECM"
+      # DUMMY_REPO_ECM_CONFIG_REG: "{{ repo_ecm_config_reg.stat.exists }}"
+
+  # - debug:
+      # var: repo_ecm_config_reg
+
+  # - name: Check does config file exist in tracking
+    # stat:
+      # path: '{{ tracking_dir_server }}/repo/10-ENV_CONFIG/{{ ecm_config_filename }}'
+    # register: track_ecm_config_reg
+
+  # - debug:
+      # var: track_ecm_config_reg
+
+  # - name: Create a empty dir if ECM config file doesn't exist in tracking
+    # file:
+      # path: '{{ tracking_dir_server }}/repo/10-ENV_CONFIG'
+      # state: directory
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+    # when: track_ecm_config_reg.stat.exists == false
+
+  # - name: Create a empty ECM config file if it doesn't exist in tracking
+    # file:
+      # path: '{{ tracking_dir_server }}/repo/10-ENV_CONFIG/{{ ecm_config_filename }}'
+      # state: touch
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+    # when: track_ecm_config_reg.stat.exists == false
+
+  # - name: Check did ECM config changed
+    # command: 'diff -q {{ ecm_config_import_file }} {{ tracking_dir_server }}/repo/10-ENV_CONFIG/{{ ecm_config_filename }}'
+    # register: diff_ecm_config_result
+    # changed_when: diff_ecm_config_result.rc != 0
+    # failed_when: diff_ecm_config_result.rc == 2
+    # when: repo_ecm_config_reg.stat.exists == true
+
+  # - debug:
+      # var: diff_ecm_config_result
+
+  # - name: Register dummy ECM host with variable DUMMY_DIFF_ECM_CONFIG_RESULT
+    # add_host:
+      # name: "DUMMY_ECM"
+      # DUMMY_DIFF_ECM_CONFIG_RESULT: "{{ diff_ecm_config_result.changed }}"

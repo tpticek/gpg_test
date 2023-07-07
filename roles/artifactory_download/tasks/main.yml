@@ -1,0 +1,26 @@
+---
+# tasks file for artifactory_download
+  - name: Create LOG folder
+    file:
+      path: '{{ log_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Create EOC-ECM LOG folder
+    file:
+      path: '{{ log_dir_eocecm }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Download a file from Artifactory
+    shell: 'curl -u{{ artifactory_username }}:{{ artifactory_password }} -O "{{ artifactory_repo }}/{{ artifactory_repo_folder_path }}/{{ artifactory_file }}" | tee {{ artifactory_log_file }}'
+    args:
+      chdir: '{{ artifactory_download_dir }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'

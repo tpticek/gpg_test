@@ -1,0 +1,60 @@
+---
+# tasks file for eocecm_configImport
+  - name: Create LOG folder
+    file:
+      path: '{{ log_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Create EOC-ECM LOG folder
+    file:
+      path: '{{ log_dir_eocecm }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+###############################################################################
+#----------Ericsson Order Care - Import Configuration -------------#
+###############################################################################
+
+  - name: Config Import using configImport.sh command
+    shell: './configImport.sh {{ eoc_database_string }} {{ eoc_app_name }} {{ eoc_app_version }} {{ eoc_create_DB_app_import }} {{ eoc_config_import_file }} {{ eoc_metadata_path }}'
+    args:
+      chdir: '{{ symlink_eoc_dir }}/designer/env'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'configImport_sh'
+    ignore_errors: True
+
+  - debug:
+      var: configImport_sh
+
+
+  - name: Save log from command
+    copy:
+      content: "{{ configImport_sh.stdout }}"
+      dest: "{{ log_dir_eocecm }}/{{ eoc_file_name }}-configImport_sh_{{ date_and_time }}.log"
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    # when: deploy_to_env == 'DEV1'
+
+  - name: Add command we used in previous task to log
+    blockinfile:
+      path: "{{ log_dir_eocecm }}/{{ eoc_file_name }}-configImport_sh_{{ date_and_time }}.log"
+      block: |
+        ##################################################################################################################################################
+        ####### {{ configImport_sh.cmd }} #######
+        ##################################################################################################################################################
+      marker: "\n# {mark} ANSIBLE MANAGED BLOCK\n"
+      insertbefore: BOF
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+
+  - fail:
+      msg: 'Following command FAILED: {{ configImport_sh.cmd }}.'
+    when: configImport_sh.rc != 0

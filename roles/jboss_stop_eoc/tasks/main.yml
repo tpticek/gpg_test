@@ -1,0 +1,326 @@
+---
+# tasks file for jboss_stop_eoc
+# ovo ime EOC i process bi moga stavit u defaults folder ka varijablu pa mogu onda za ECM lagano prebacit
+  # - name: Stop JBoss - EOC
+  #   shell: "kill $(ps -ef |grep standalone_EOC_PE_UI1 |grep java |awk '{print $2}')"
+  #   args:
+  #     chdir: "/app/jboss/eocecm_0020/bin"
+    # become: yes
+    # become_user: "{{ user_for_jboss }}"
+  #   ignore_errors: True
+
+
+################# standalone_producer #################
+
+  - name: Get running processes list from remote host - EOC AMQ Producer
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ eoc_nodeid_project_producer }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_project_producer is defined
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Kill running processes - EOC Project Manager
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_project_producer is defined
+
+  - name: Wait for processes to stop - EOC Project Manager
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_project_producer is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Force kill stuck processes, if there is any - EOC Project Manager
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_project_producer is defined
+
+
+
+################# standalone_pmm #################
+
+  - name: Get running processes list from remote host - EOC Project Manager
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ eoc_nodeid_project_manager }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_project_manager is defined
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Kill running processes - EOC Project Manager
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_project_manager is defined
+
+  - name: Wait for processes to stop - EOC Project Manager
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_project_manager is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Force kill stuck processes, if there is any - EOC Project Manager
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_project_manager is defined
+
+
+################# standalone_sr #################
+
+  - name: Get running processes list from remote host - EOC Service Registry
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ eoc_nodeid_service_registry }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_service_registry is defined
+
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Kill running processes - EOC Service Registry
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_service_registry is defined
+
+  - name: Wait for processes to stop - EOC Service Registry
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_service_registry is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Force kill stuck processes, if there is any - EOC Service Registry
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_service_registry is defined
+
+################# standalone_OM1 #################
+
+  - name: Get running processes list from remote host - EOC Order Manager
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ eoc_nodeid_order_manager }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_order_manager is defined
+
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Kill running processes - EOC Order Manager
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_order_manager is defined
+
+  - name: Wait for processes to stop - EOC Order Manager
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_order_manager is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Force kill stuck processes, if there is any - EOC Order Manager
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_order_manager is defined
+
+
+
+################# standalone_auth1 #################
+
+  - name: Get running processes list from remote host - EOC Authentication
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ eoc_nodeid_auth }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_order_manager is defined or eoc_nodeid_service_registry is defined or eoc_nodeid_project_manager is defined
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Kill running processes - EOC Authentication
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_order_manager is defined or eoc_nodeid_service_registry is defined or eoc_nodeid_project_manager is defined
+
+  - name: Wait for processes to stop - EOC Authentication
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_order_manager is defined or eoc_nodeid_service_registry is defined or eoc_nodeid_project_manager is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Force kill stuck processes, if there is any - EOC Authentication
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_order_manager is defined or eoc_nodeid_service_registry is defined or eoc_nodeid_project_manager is defined
+
+
+################# standalone_EOC_PE_UI1 #################
+
+  - name: Get running processes list from remote host - Ericsson Order Care
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ eoc_nodeid_main }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_main is defined
+
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Kill running processes - Ericsson Order Care
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_main is defined
+
+  - name: Wait for processes to stop - Ericsson Order Care
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_main is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Force kill stuck processes, if there is any - Ericsson Order Care
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: eoc_nodeid_main is defined

@@ -1,0 +1,32 @@
+---
+  - name: Check does ECM metadata exist in tracking
+    stat:
+      path: '{{ tracking_dir_server }}/repo/06-METADATA/1-ECM'
+    register: track_ecm_dir_reg
+
+  - name: Create a empty dir if ECM metadata doesn't exist in tracking
+    file:
+      path: '{{ tracking_dir_server }}/repo/06-METADATA/1-ECM'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: not track_ecm_dir_reg.stat.exists
+  # we are creating folder so we can use diff command
+  # this only happends if repo in working is not existing when we
+  # start this playbook so we can't copy to tracking repo
+
+  - name: Check did ECM metadata changed
+    command: 'diff -qr {{ ecm_metadata_path }} {{ tracking_dir_server }}/repo/06-METADATA/1-ECM'
+    register: diff_ecm_result
+    changed_when: diff_ecm_result.rc != 0
+    failed_when: diff_ecm_result.rc == 2
+
+  - debug:
+      var: diff_ecm_result
+
+  - name: Register dummy ECM host with variable DUMMY_DIFF_ECM_RESULT
+    add_host:
+      name: "DUMMY_ECM"
+      DUMMY_DIFF_ECM_RESULT: "{{ diff_ecm_result.changed }}"

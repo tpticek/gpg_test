@@ -1,0 +1,20 @@
+[Unit]
+Description=SOM Artemis Consumer Service
+After=syslog.target network.target
+[Service]
+SuccessExitStatus=143
+User=eocecm
+Group=eocecm
+ 
+Type=forking
+ 
+ExecStart=/data/ActiveMQAdapter/Consumer/SOM-Artemis-Consumer-script.sh
+ExecStop=/bin/kill -15 $MAINPID
+ 
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+ 
+[Install]
+WantedBy=multi-user.target
+

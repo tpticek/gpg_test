@@ -1,0 +1,31 @@
+---
+# tasks file for artifactory_upload
+  - name: Create LOG folder
+    file:
+      path: '{{ log_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Create EOC-ECM LOG folder
+    file:
+      path: '{{ log_dir_eocecm }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Upload a file to Artifactory
+    shell: 'curl -u{{ artifactory_username }}:{{ artifactory_password }} -T {{ artifactory_file_path }} "{{ artifactory_repo }}/{{ artifactory_repo_folder_path }}/" | tee {{ artifactory_log_file }}'
+    args:
+      chdir: '{{ artifactory_upload_working_dir }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'artifactory_upload_var'
+    failed_when: '"Failed" in artifactory_upload_var.stdout or "Failed" in artifactory_upload_var.stderr'
+
+  - debug:
+      var: artifactory_upload_var

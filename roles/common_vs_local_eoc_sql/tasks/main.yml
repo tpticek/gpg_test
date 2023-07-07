@@ -1,0 +1,21 @@
+---
+# tasks file for common_vs_local_eoc_sql
+  - name: Common vs Local EOC SOF Items - Lithuania
+    include: SOF_items_LT.yml
+    when: eocecm_environment == 'SIT1_LT'
+
+  - name: Common vs Local EOC SOF Items - Norway
+    include: SOF_items_NO.yml
+    when: eocecm_environment == 'SIT1_NO_SOM'
+
+  - name: Common vs Local EOC SOF Items - Norway Mobile
+    include: SOF_items_NO_Mobile.yml
+    when: eocecm_environment == 'SIT1_NO_Mobile_SOM'
+
+  - name: Common vs Local EOC SOF Items - Finland
+    include: SOF_items_FI.yml
+    when: eocecm_environment == 'SIT_FI'
+
+  - name: Common vs Local EOC SOF Items - Platinum
+    include: SOF_items_PLATINUM.yml
+    when: eocecm_environment == 'PLATINUM'

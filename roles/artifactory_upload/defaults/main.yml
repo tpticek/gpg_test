@@ -1,0 +1,15 @@
+---
+# defaults file for artifactory_upload
+# artifactory_upload_working_dir: '{{ symlink_eocecm_dir }}/designer/env'
+# eocecm_metadata_path
+# build_library_name: 'telia_common'
+# artifactory_upload_working_dir: '{{ symlink_eoc_dir }}/designer/env'
+# artifactory_file_path: '{{ repo_dir_server }}/03-LIB/1-EOC-Common/{{ build_library_name }}.jar'
+
+artifactory_username: somms-machine
+artifactory_password: 7TvcHG3cHXpgudvh
+
+artifactory_repo: 'https://diva.teliacompany.net/artifactory/somms-generic-local'
+artifactory_repo_folder_path: 'COMMON/{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}/{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}'
+
+artifactory_log_file: '{{ log_dir_eocecm }}/artifactory_upload_{{ build_library_name }}_{{ date_and_time }}.log'

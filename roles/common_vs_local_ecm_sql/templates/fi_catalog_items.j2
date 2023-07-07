@@ -1,0 +1,9 @@
+select count(*) from {{ ecm_db_user }}.cwpc_itemattribute_v civ 
+where (itemcode like 'CFSS_FI%' 
+or itemcode like 'RFSS_FI%' 
+or itemcode like 'RS_FI%')
+and catalogobjecttype = 'item' 
+and itemattributecode <> 'version' 
+and itemattributecode not in (select itemattributecode from {{ ecm_db_user }}.cwpc_itemattribute_v where catalogobjecttype = 'item' and itemattributecode <> 'version' and itemcode in (select baseitemcode from
+cwpc_item where itemcode = civ.itemcode));
+

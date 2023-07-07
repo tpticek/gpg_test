@@ -1,0 +1,37 @@
+eocecm_environment: DEV_FI
+
+ecm_app_name: ecm
+eoc_app_name: eoc
+
+ecm_app_ip: 131.177.38.77
+eoc_app_ip: 131.177.38.74
+db_host: 131.177.38.76
+
+ecm_db_user: ecm21
+ecm_db_pass: ECM21
+
+eoc_db_user: eoc21
+eoc_db_pass: EOC21
+
+folder_dest: /app
+symlink_eoc_dir: '{{ folder_dest }}/Ericsson/OrderCare'
+symlink_ecm_dir: '{{ folder_dest }}/Ericsson/CatalogManager'
+jboss_dir: '{{ folder_dest }}/jboss/telia_fl_dev'
+
+ecm_nodeid_main: ECM_PE_UI1
+ecm_nodeid_ecm_app: ecmUI1
+
+eoc_nodeid_main: EOC_PE_UI1
+eoc_nodeid_auth: auth1
+eoc_nodeid_order_manager: OM1
+eoc_nodeid_service_registry: sr
+eoc_nodeid_project_manager: pmm
+
+java_home_var: '{{ folder_dest }}/java/current_jdk'
+
+ecm_catalog_import: 'yes'
+ecm_catalog_list:
+  - exportedCatalog.zip
+
+ecm_catalog_path: '{{ repo_dir_server }}/02-CATALOG/{{ ecm_catalog_folder_name }}'
+ecm_catalog_folder_name: SOM_CM_Latest_Release

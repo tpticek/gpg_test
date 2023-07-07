@@ -1,0 +1,26 @@
+---
+# tasks file for rollback_eoc
+  - debug:
+      msg: This is rollback role RESCUE1
+
+  - debug:
+      msg: This is rollback role RESCUE2
+
+  - name: Handle the error
+    block:
+      - debug:
+          msg: 'I execute normally'
+      - name: i force a failure
+        command: /bin/false
+      - debug:
+          msg: 'I never execute, due to the above task failing, :-('
+    rescue:
+      - debug:
+            msg: 'I caught an error, can do stuff here to fix it, :-)'
+
+      - name: Imported Rollback ECM.
+        include_role:
+          name: rollback_ecm
+
+  - debug:
+      msg: This is rollback role RESCUE3

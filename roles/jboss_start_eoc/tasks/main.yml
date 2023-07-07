@@ -1,0 +1,190 @@
+---
+# tasks file for jboss_start_eoc
+  - name: Create JBoss LOG folder
+    file:
+      path: '{{ log_dir_jboss }}'
+      state: directory
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+
+  - name: Start JBoss - Ericsson Order Care
+    shell: "nohup ./standalone_{{ eoc_nodeid_main }}.sh >> {{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_main }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: eoc_nodeid_main is defined
+
+# TO-DO Check if there are ERRORs maybe ignore comment from previous or check logs for error string
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_main }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: eoc_nodeid_main is defined
+
+  - name: Wait until the string "Admin console listening on" is in the JBoss Ericsson Order Care log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_main }}_{{ date_and_time }}.log"
+      search_regex: "Admin console listening on"
+      timeout: 600
+    become: yes
+    when: eoc_nodeid_main is defined
+
+################# standalone_auth1 #################
+
+  - name: Start JBoss - EOC Authentication
+    shell: "nohup ./standalone_{{ eoc_nodeid_auth }}.sh >> {{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_auth }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: eoc_nodeid_order_manager is defined or eoc_nodeid_service_registry is defined or eoc_nodeid_project_manager is defined
+
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_auth }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: eoc_nodeid_order_manager is defined or eoc_nodeid_service_registry is defined or eoc_nodeid_project_manager is defined
+
+  - name: Wait until the string "Admin console listening on" is in the JBoss Authentication log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_auth }}_{{ date_and_time }}.log"
+      search_regex: "Admin console listening on"
+    when: eoc_nodeid_order_manager is defined or eoc_nodeid_service_registry is defined or eoc_nodeid_project_manager is defined
+    become: yes
+
+################# standalone_OM1 #################
+
+  - name: Start JBoss - EOC Order Manager
+    shell: "nohup ./standalone_{{ eoc_nodeid_order_manager }}.sh >> {{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_order_manager }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: eoc_nodeid_order_manager is defined
+
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_order_manager }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: eoc_nodeid_order_manager is defined
+
+  - name: Wait until the string "Admin console listening on" is in the JBoss Order Manager log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_order_manager }}_{{ date_and_time }}.log"
+      search_regex: "Admin console listening on"
+    when: eoc_nodeid_order_manager is defined
+    become: yes
+
+################# standalone_sr #################
+
+  - name: Start JBoss - EOC Service Registry
+    shell: "nohup ./standalone_{{ eoc_nodeid_service_registry }}.sh >> {{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_service_registry }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: eoc_nodeid_service_registry is defined
+
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_service_registry }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: eoc_nodeid_service_registry is defined
+
+  - name: Wait until the string "Admin console listening on" is in the JBoss Service Registry log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_service_registry }}_{{ date_and_time }}.log"
+      search_regex: "Admin console listening on"
+    when: eoc_nodeid_service_registry is defined
+    become: yes
+
+################# standalone_pmm #################
+
+  - name: Start JBoss - EOC Project Manager
+    shell: "nohup ./standalone_{{ eoc_nodeid_project_manager }}.sh >> {{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_project_manager }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: eoc_nodeid_project_manager is defined
+
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_project_manager }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: eoc_nodeid_project_manager is defined
+
+  - name: Wait until the string "Admin console listening on" is in the JBoss Project Manager log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_project_manager }}_{{ date_and_time }}.log"
+      search_regex: "Admin console listening on"
+    when: eoc_nodeid_project_manager is defined
+    become: yes
+
+################# standalone_producer #################
+
+  - name: Start JBoss - EOC AMQ Producer
+    shell: "nohup ./standalone_{{ eoc_nodeid_project_producer }}.sh >> {{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_project_producer }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: eoc_nodeid_project_producer is defined
+
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_project_producer }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: eoc_nodeid_project_producer is defined
+
+  - name: Wait until the string "Admin console listening on" is in the JBoss Project Manager log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ eoc_file_name }}_standalone_{{ eoc_nodeid_project_producer }}_{{ date_and_time }}.log"
+      search_regex: "Started http-remoting-connector"
+    when: eoc_nodeid_project_producer is defined
+    become: yes

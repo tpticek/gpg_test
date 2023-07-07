@@ -1,0 +1,56 @@
+---
+  - name: Check does config file exist in repo
+    stat:
+      path: '{{ repo_dir_server }}/10-ENV_CONFIG/{{ eoc_config_filename }}'
+    register: repo_eoc_config_reg
+
+  # - debug:
+      # var: repo_eoc_config_reg
+
+  # - name: Register dummy EOC host with variable DUMMY_REPO_EOC_CONFIG_REG
+    # add_host:
+      # name: "DUMMY_EOC"
+      # DUMMY_REPO_EOC_CONFIG_REG: "{{ repo_eoc_config_reg.stat.exists }}"
+
+  # - name: Check does config file exist in tracking
+    # stat:
+      # path: '{{ tracking_dir_server }}/repo/10-ENV_CONFIG/{{ eoc_config_filename }}'
+    # register: track_eoc_config_reg
+
+  # - debug:
+      # var: track_eoc_config_reg
+
+  # - name: Create a empty dir if EOC config file doesn't exist in tracking
+    # file:
+      # path: '{{ tracking_dir_server }}/repo/10-ENV_CONFIG'
+      # state: directory
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+    # when: track_eoc_config_reg.stat.exists == false
+
+  # - name: Create a empty EOC config file if it doesn't exist in tracking
+    # file:
+      # path: '{{ tracking_dir_server }}/repo/10-ENV_CONFIG/{{ eoc_config_filename }}'
+      # state: touch
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+    # when: track_eoc_config_reg.stat.exists == false
+
+  # - name: Check did EOC config changed
+    # command: 'diff -q {{ eoc_config_import_file }} {{ tracking_dir_server }}/repo/10-ENV_CONFIG/{{ eoc_config_filename }}'
+    # register: diff_eoc_config_result
+    # changed_when: diff_eoc_config_result.rc != 0
+    # failed_when: diff_eoc_config_result.rc == 2
+    # when: repo_eoc_config_reg.stat.exists == true
+
+  # - debug:
+      # var: diff_eoc_config_result
+
+  # - name: Register dummy EOC host with variable DUMMY_DIFF_EOC_CONFIG_RESULT
+    # add_host:
+      # name: "DUMMY_EOC"
+      # DUMMY_DIFF_EOC_CONFIG_RESULT: "{{ diff_eoc_config_result.changed }}"

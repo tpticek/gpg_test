@@ -1,0 +1,12 @@
+---
+# defaults file for buildLibrary_eocecm
+
+# build_library_working_dir: '{{ symlink_eoc_dir }}/designer/env'
+# build_library_working_dir: '{{ symlink_ecm_dir }}/designer/env'
+# build_metadata_path: '{{ eoc_metadata_path }}'
+# build_metadata_path: '{{ ecm_metadata_path }}'
+# build_library_name: 'Metadata-{{ build_line_of_bussines }}_{{ date_and_time }}'
+# One of these will be defined as play variable
+
+build_library_log_file: '{{ log_dir_eocecm }}/buildLibrary_sh_{{ date_and_time }}.log'
+# build_line_of_bussines: MobileConnectivity

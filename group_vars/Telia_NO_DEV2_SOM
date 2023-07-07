@@ -1,0 +1,32 @@
+eocecm_environment: DEV2_NO_SOM
+
+ecm_app_ip: 131.116.182.163
+eoc_app_ip: 131.115.251.97
+db_host: 131.116.165.192
+
+ecm_db_user: ecm20_1
+ecm_db_pass: ECM20_1
+
+eoc_db_user: eoc20_1
+eoc_db_pass: EOC20_1
+
+symlink_eoc_dir: '{{ folder_dest }}/Ericsson/OrderCare_22.0.0_EP5.12_NELS'
+symlink_ecm_dir: '{{ folder_dest }}/Ericsson/CatalogManager_22.0.0_EP5.12_NELS'
+jboss_dir: '{{ folder_dest }}/jboss/eocecm_22.0.0_EP5.12_NELS'
+
+ecm_nodeid_main: ECM_PE_UI1
+ecm_nodeid_ecm_app: ecmUI
+ecm_nodeid_offer_manager: oma
+
+eoc_nodeid_main: EOC_PE_UI1
+eoc_nodeid_auth: auth1
+eoc_nodeid_order_manager: OM1
+eoc_nodeid_service_registry: sr
+eoc_nodeid_project_manager: pmm
+
+ecm_catalog_import: 'yes'
+ecm_catalog_list:
+  - exportedCatalog.zip
+
+ecm_catalog_path: '{{ repo_dir_server }}/02-CATALOG/{{ ecm_catalog_folder_name }}'
+ecm_catalog_folder_name: PI_Sprint_Latest

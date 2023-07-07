@@ -1,0 +1,239 @@
+---
+# tasks file for common_vs_local_ecm_sql
+  # - name: Create a CICD working directory if it does not exist
+  #   file:
+  #     path: '{{ cicd_work_dir_server }}'
+  #     state: directory
+  #     mode: '0775'
+  #     owner: '{{ user_for_eocecm }}'
+  #     group: '{{ group_for_eocecm }}'
+  #   become: yes
+
+  - name: Create a tracking directory if it does not exist
+    file:
+      path: '{{ tracking_dir_server }}/common_vs_local'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Save a SQL for Finland common count of catalog items
+    template:
+      src: fi_common_catalog_items.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/common_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT_FI'
+
+  - name: Save a SQL for Norway common count of catalog items
+    template:
+      src: no_common_catalog_items.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/common_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_NO_SOM'
+    
+  - name: Save a SQL for Norway Mobile common count of catalog items
+    template:
+      src: no_mobile_common_catalog_items.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/common_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_NO_Mobile_SOM'
+
+  - name: Save a SQL for Lithuania common count of catalog items
+    template:
+      src: lt_common_catalog_items.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/common_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_LT'
+
+  - name: Save a SQL for Finland count of catalog items
+    template:
+      src: fi_catalog_items.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/fi_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT_FI'
+
+  - name: Save a SQL for Norway count of catalog items
+    template:
+      src: no_catalog_items.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/no_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_NO_SOM'
+    
+  - name: Save a SQL for Norway Mobile count of catalog items
+    template:
+      src: no_mobile_catalog_items.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/no_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_NO_Mobile_SOM'
+
+  - name: Save a SQL for Lithuania count of catalog items
+    template:
+      src: lt_catalog_items.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/lt_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_LT'
+
+  - name: Run SQL for common count of catalog items
+    shell: './run_EDB_DDL_via_cmd_line_linux.sh {{ ecm_db_host }} 5444 {{ ecm_db_user }} {{ ecm_db_pass }} {{ ecm_db_database }} {{ tracking_dir_server }}/common_vs_local/common_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql {{ tracking_dir_server }}/common_vs_local/common_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.log'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/DDL/edb'
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'common_catalog_items'
+
+  - debug:
+      var: common_catalog_items
+
+
+  - name: Run SQL for Finland count of catalog items
+    shell: './run_EDB_DDL_via_cmd_line_linux.sh {{ ecm_db_host }} 5444 {{ ecm_db_user }} {{ ecm_db_pass }} {{ ecm_db_database }} {{ tracking_dir_server }}/common_vs_local/fi_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql {{ tracking_dir_server }}/common_vs_local/fi_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.log'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/DDL/edb'
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'fi_catalog_items'
+    when: eocecm_environment == 'SIT_FI'
+
+  - name: Run SQL for Norway count of catalog items
+    shell: './run_EDB_DDL_via_cmd_line_linux.sh {{ ecm_db_host }} 5444 {{ ecm_db_user }} {{ ecm_db_pass }} {{ ecm_db_database }} {{ tracking_dir_server }}/common_vs_local/no_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql {{ tracking_dir_server }}/common_vs_local/no_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.log'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/DDL/edb'
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'no_catalog_items'
+    when: eocecm_environment == 'SIT1_NO_SOM'
+    
+  - name: Run SQL for Norway Mobile count of catalog items
+    shell: './run_EDB_DDL_via_cmd_line_linux.sh {{ ecm_db_host }} 5444 {{ ecm_db_user }} {{ ecm_db_pass }} {{ ecm_db_database }} {{ tracking_dir_server }}/common_vs_local/no_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql {{ tracking_dir_server }}/common_vs_local/no_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.log'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/DDL/edb'
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'no_catalog_items'
+    when: eocecm_environment == 'SIT1_NO_Mobile_SOM'
+
+
+  # - debug:
+  #     var: no_catalog_items
+
+  - name: Run SQL for Lithuania count of catalog items
+    shell: './run_EDB_DDL_via_cmd_line_linux.sh {{ ecm_db_host }} 5444 {{ ecm_db_user }} {{ ecm_db_pass }} {{ ecm_db_database }} {{ tracking_dir_server }}/common_vs_local/lt_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.sql {{ tracking_dir_server }}/common_vs_local/lt_catalog_items_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.log'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/DDL/edb'
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'lt_catalog_items'
+    when: eocecm_environment == 'SIT1_LT'
+
+  - name: Save email body for Finland
+    template:
+      src: fi_email.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/email_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.txt'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT_FI'
+
+  - name: Save email body for Norway
+    template:
+      src: no_email.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/email_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.txt'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_NO_SOM'
+    
+  - name: Save email body for Norway Mobile
+    template:
+      src: no_mobile_email.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/email_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.txt'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_NO_Mobile_SOM'
+
+  - name: Save email body for Lithuania
+    template:
+      src: lt_email.j2
+      dest: '{{ tracking_dir_server }}/common_vs_local/email_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.txt'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: eocecm_environment == 'SIT1_LT'
+
+  - name: Store email txt from remote to DDS
+    fetch:
+      src: '{{ tracking_dir_server }}/common_vs_local/email_{{ ansible_date_time.year }}{{ ansible_date_time.month }}{{ ansible_date_time.day }}_{{ ansible_date_time.hour }}{{ ansible_date_time.minute }}{{ ansible_date_time.second }}.txt'
+      dest: '/tmp/common_vs_local_email'
+    register: 'fetch_email'
+
+  - debug:
+      var: fetch_email
+
+  - name: Send email with results for common vs local catalog items
+    shell: 'cat {{ fetch_email.dest }} | mailx -S smtp={{ smtp_server }} -r {{ email_from }} -s "{{ email_subject }}" -v {{ email_to }}'
+    delegate_to: localhost

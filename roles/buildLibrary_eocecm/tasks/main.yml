@@ -1,0 +1,39 @@
+---
+# tasks file for buildLibrary_eocecm
+  - name: Create LOG folder
+    file:
+      path: '{{ log_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Create EOC-ECM LOG folder
+    file:
+      path: '{{ log_dir_eocecm }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Change folder permissions
+    file:
+      path: '{{ build_metadata_path }}'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+      recurse: yes
+    become: yes
+
+  - name: Build Library using buildLibrary.sh command
+    shell: './buildLibrary.sh -logFile {{ build_library_log_file }} {{ build_metadata_path }} {{ build_library_name }} S'
+    args:
+      chdir: '{{ build_library_working_dir }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'buildLibrary_sh'
+    #failed_when: "'ERROR' in buildLibrary_sh.stdout or 'ERROR - Bad options' in buildLibrary_sh.stdout"
+# ./buildLibrary.sh -logFile /tmp/build_log.log /vagrant/metadata/06-METADATA/2-EOC test_name_library S
+# curl -usomms-machine:AP2VLVNXhw2HKXyc7iL8H5oDQWfoGKDRq8o1qa -T Result_*.zip "https://diva.teliacompany.net/artifactory/somms-generic-local/LT/SIT1_LT/"

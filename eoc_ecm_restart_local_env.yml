@@ -1,0 +1,21 @@
+---
+  - name: Restart Sentinel
+    hosts: 192.168.135.211
+    roles:
+      - sentinel_stop
+      - sentinel_start
+
+  - name: Restart ECM
+    hosts: 192.168.135.211
+    roles:
+      - jboss_stop_ecm
+      - jboss_start_ecm
+
+  - name: Restart EOC
+    hosts: 192.168.135.211
+    roles:
+      - jboss_stop_eoc
+      - jboss_start_eoc
+
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_deploy.yml -v --extra-vars "variable_host_ecm=Telia_LT_DEV2_ecm variable_host_eoc=Telia_LT_DEV2_eoc git_commit_id=${bamboo.planRepository.1.revision}"

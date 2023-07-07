@@ -1,0 +1,27 @@
+---
+
+  - name: Stop EOC
+    hosts:
+      - no004eocdev
+    roles:
+      - jboss_stop_eoc
+
+  - name: Stop ECM
+    hosts:
+      - no009ecmdev
+    roles:
+      - jboss_stop_ecm
+
+  - name: Start ECM
+    hosts:
+      - no009ecmdev
+    roles:
+      - jboss_start_ecm
+
+  - name: Start EOC
+    hosts:
+      - no004eocdev
+    roles:
+      - jboss_start_eoc
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_SIT2_R22.yml -v

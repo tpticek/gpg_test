@@ -1,0 +1,15 @@
+---
+# tasks file for sentinel_start
+  - name: Check is Sentinel Running
+    command: pgrep lserv
+    ignore_errors: yes
+    register: lserv_process
+
+  - name: Startanje Sentinela
+    command: ./lserv
+    args:
+      chdir: '{{ sentinel_dir }}'
+    # environment:
+    #   LSHOST: localhost
+    when: lserv_process.rc != 0
+    become: yes

@@ -1,0 +1,39 @@
+---
+# tasks file for execute_custom_sql_eoc
+
+#################################################
+#----- Execute SQL created by developers -------#
+#################################################
+
+  - name: Check is SQL created by developer in place!?
+    stat:
+      path: '{{ eoc_custom_SQL_path }}/{{ eoc_custom_SQL_file }}'
+    register: upgrade_sql
+
+  - debug:
+      msg: "SQL created by developers is in place"
+    when: upgrade_sql.stat.isreg is defined
+
+  - debug:
+      msg: "SQL created by developers is NOT in place!"
+    when: upgrade_sql.stat.isreg is not defined
+
+  - name: Run SQL created by developers
+    shell: './run_EDB_DDL_via_cmd_line_linux.sh {{ eoc_db_host }} 5444 {{ eoc_db_user }} {{ eoc_db_pass }} {{ eoc_db_database }} {{ eoc_custom_SQL_path }}/{{ eoc_custom_SQL_file }} {{ log_dir_eocecm }}/{{ eoc_file_name }}-custom_SQL_file_{{ date_and_time }}.log'
+    args:
+      chdir: '{{ symlink_eoc_dir }}/DDL/edb'
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      # JAVA_HOME: '{{ folder_dest }}/java/current_jdk'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+      # LSHOST: "no001ecmdev"
+      # LSFORCEHOST: "no001ecmdev"
+      # LSERVRC: "/app/Sentinel/SentinelRMSServer8.6.2/Linux/bin/lservrc"
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    when: upgrade_sql.stat.isreg is defined
+    # when: deploy_to_env == 'DEV1' and generateUpgradeSQL_sh.stdout.find("Upgrade script generated") != -1

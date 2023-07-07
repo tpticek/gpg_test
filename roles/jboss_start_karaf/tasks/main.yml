@@ -1,0 +1,18 @@
+---
+# tasks file for jboss_start_eoc
+
+  - name: Create JBoss LOG folder
+    file:
+      path: '{{ log_dir_karaf }}'
+      state: directory
+      owner: '{{ ordering_api_service_user }}'
+      group: '{{ ordering_api_service_user }}'
+      mode: '0775'
+    become: yes
+
+  - name: Start Ordering Service API - Apache Karaf
+    shell: "systemctl restart {{ ordering_api_service_name }}"
+    become: yes
+    # ignore_errors: True
+    when: eoc_nodeid_karaf is defined
+

@@ -1,0 +1,99 @@
+---
+# tasks file for jboss_start_ecm
+  - name: Create JBoss LOG folder
+    file:
+      path: '{{ log_dir_jboss }}'
+      state: directory
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+
+  - name: Start JBoss - Ericsson Catalog Manager
+    shell: "nohup ./standalone_{{ ecm_nodeid_main }}.sh >> {{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_main }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: ecm_nodeid_main is defined
+
+# TO-DO Check if there are ERRORs maybe ignore comment from previous or check logs for error string
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_main }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: ecm_nodeid_main is defined
+
+  - name: Wait until the string 'Admin console listening on' is in the JBoss Ericsson Catalog Manager log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_main }}_{{ date_and_time }}.log"
+      search_regex: "Admin console listening on"
+    become: yes
+    when: ecm_nodeid_main is defined
+
+################# standalone_ecmUI #################
+
+  - name: Start JBoss - Catalog Manager Application
+    shell: "nohup ./standalone_{{ ecm_nodeid_ecm_app }}.sh >> {{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_ecm_app }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: ecm_nodeid_ecm_app is defined
+
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_ecm_app }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: ecm_nodeid_ecm_app is defined
+
+  - name: Wait until the string 'Admin console listening on' is in the JBoss Catalog Manager Application log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_ecm_app }}_{{ date_and_time }}.log"
+      search_regex: "Admin console listening on"
+    when: ecm_nodeid_ecm_app is defined
+    become: yes
+
+################# standalone_oma #################
+
+  - name: Start JBoss - Offer Manager
+    shell: "nohup ./standalone_{{ ecm_nodeid_offer_manager }}.sh >> {{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_offer_manager }}_{{ date_and_time }}.log &"
+    args:
+      chdir: "{{ jboss_dir }}/bin"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+    become: yes
+    become_user: '{{ user_for_jboss }}'
+    # ignore_errors: True
+    when: ecm_nodeid_offer_manager is defined
+
+  - name: Change file ownership of log
+    file:
+      path: '{{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_offer_manager }}_{{ date_and_time }}.log'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    become: yes
+    when: ecm_nodeid_offer_manager is defined
+
+  - name: Wait until the string 'Admin console listening on' is in the JBoss Offer Manager log before continuing
+    wait_for:
+      path: "{{ log_dir_jboss }}/{{ ecm_file_name }}_standalone_{{ ecm_nodeid_offer_manager }}_{{ date_and_time }}.log"
+      search_regex: "Admin console listening on"
+    when: ecm_nodeid_offer_manager is defined
+    become: yes

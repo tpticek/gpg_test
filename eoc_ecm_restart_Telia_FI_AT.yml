@@ -1,0 +1,28 @@
+---
+  - name: Restart Sentinel
+    hosts: so007ecmat1
+    roles:
+      - { role: sentinel_stop, when: sentinel_restart | bool }
+      - { role: sentinel_start, when: sentinel_restart | bool }
+
+  - name: Stop EOC
+    hosts: so007eocat1
+    roles:
+      - { role: jboss_stop_eoc, when: eoc_restart | bool }
+
+  - name: Stop ECM
+    hosts: so007ecmat1
+    roles:
+      - { role: jboss_stop_ecm, when: ecm_restart | bool }
+
+  - name: Start ECM
+    hosts: so007ecmat1
+    roles:
+      - { role: jboss_start_ecm, when: ecm_restart | bool }
+
+  - name: Start EOC
+    hosts: so007eocat1
+    roles:
+      - { role: jboss_start_eoc, when: eoc_restart | bool }
+
+# ansible-playbook -e "eoc_restart=true ecm_restart=true sentinel_restart=true" -i inventory-eocecm eoc_ecm_restart_Telia_FI_AT.yml -v

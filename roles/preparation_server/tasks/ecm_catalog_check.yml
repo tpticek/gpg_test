@@ -1,0 +1,54 @@
+---
+  - name: Check does catalog file exist in repo
+    stat:
+      path: '{{ ecm_catalog_path }}/exportedCatalog.zip'
+    register: repo_catalog_reg
+
+  # - name: Register dummy ECM host with variable DUMMY_REPO_CATALOG_REG
+    # add_host:
+      # name: "DUMMY_ECM"
+      # DUMMY_REPO_CATALOG_REG: "{{ repo_catalog_reg.stat.exists }}"
+
+
+  # - name: Check does catalog file exist in tracking
+    # stat:
+      # path: '{{ tracking_dir_server }}/repo/02-CATALOG/{{ ecm_catalog_folder_name }}/exportedCatalog.zip'
+    # register: track_catalog_reg
+
+  # - debug:
+      # var: track_catalog_reg
+
+  # - name: Create a empty dir if catalog file doesn't exist in tracking
+    # file:
+      # path: '{{ tracking_dir_server }}/repo/02-CATALOG/{{ ecm_catalog_folder_name }}'
+      # state: directory
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+    # when: track_catalog_reg.stat.exists == false
+
+  # - name: Create a empty catalog file if it doesn't exist in tracking
+    # file:
+      # path: '{{ tracking_dir_server }}/repo/02-CATALOG/{{ ecm_catalog_folder_name }}/exportedCatalog.zip'
+      # state: touch
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+    # when: track_catalog_reg.stat.exists == false
+
+  # - name: Check did catalog changed
+    # command: 'diff -q {{ ecm_catalog_path }}/exportedCatalog.zip {{ tracking_dir_server }}/repo/02-CATALOG/{{ ecm_catalog_folder_name }}/exportedCatalog.zip'
+    # register: diff_catalog_result
+    # changed_when: diff_catalog_result.rc != 0
+    # failed_when: diff_catalog_result.rc == 2
+    # when: repo_catalog_reg.stat.exists == true
+
+  # - debug:
+      # var: diff_catalog_result
+
+  # - name: Register dummy ECM host with variable DUMMY_DIFF_CATALOG_RESULT
+    # add_host:
+      # name: "DUMMY_ECM"
+      # DUMMY_DIFF_CATALOG_RESULT: "{{ diff_catalog_result.changed }}"

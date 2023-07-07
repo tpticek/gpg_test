@@ -1,0 +1,161 @@
+---
+# tasks file for jboss_stop_ecm
+
+################# standalone_ecmUI #################
+
+  - name: Catalog Manager Application - Get running processes list from remote host
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ ecm_nodeid_ecm_app }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_ecm_app is defined
+
+  - debug:
+      var: running_processes.stdout_lines
+    when: ecm_nodeid_ecm_app is defined
+
+  - name: Catalog Manager Application - Kill running processes
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_ecm_app is defined
+
+  - name: Catalog Manager Application - Wait for processes to stop
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_ecm_app is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Catalog Manager Application - Force kill stuck processes, if there is any
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_ecm_app is defined
+
+
+
+################# standalone_oma #################
+
+  - name: Offer Manager - Get running processes list from remote host
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ ecm_nodeid_offer_manager }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_offer_manager is defined
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Offer Manager - Kill running processes
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_offer_manager is defined
+
+  - name: Offer Manager - Wait for processes to stop
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_offer_manager is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Offer Manager - Force kill stuck processes, if there is any
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_offer_manager is defined
+
+
+################# standalone_ECM_PE_UI1 #################
+
+  - name: Ericsson Catalog Manager - Get running processes list from remote host
+    ignore_errors: yes
+    shell: "ps -ef |grep standalone_{{ ecm_nodeid_main }} |grep java |awk '{print $2}'"
+    register: running_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_main is defined
+
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Ericsson Catalog Manager - Kill running processes
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_main is defined
+
+  - name: Ericsson Catalog Manager - Wait for processes to stop
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_main is defined
+
+  # - debug:
+  #     var: stuck_processes
+  #
+  # - debug:
+  #     var: stuck_processes.results
+  #
+  # - debug:
+  #     var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Ericsson Catalog Manager - Force kill stuck processes, if there is any
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes
+    become_user: "{{ user_for_jboss }}"
+    when: ecm_nodeid_main is defined

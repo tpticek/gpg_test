@@ -1,0 +1,72 @@
+---
+##################################################################
+#----- Execute OneTimeExecution SQL created by developers -------#
+##################################################################
+
+  - name: List OneTimeExecution SQLs - short
+    shell: "ls -1 *_OneTimeExecution.sql"
+    args:
+      chdir: "{{ repo_dir_server }}/01-SQL/EOC"
+    ignore_errors: True
+    register: 'list_oneTime_short'
+
+  - name: List OneTimeExecution SQLs - path
+    shell: 'ls -1 {{ repo_dir_server }}/01-SQL/EOC/*_OneTimeExecution.sql'
+    ignore_errors: True
+    register: 'list_oneTime_path'
+
+  - name: Create a track directory for OneTimeExecution.track flags
+    file:
+      path: '{{ tracking_dir_server }}/track'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: list_oneTime_path.rc == 0
+
+  - name: Create a OneTimeExecution directory for SQLs that needs to be executed one time only
+    file:
+      path: '{{ repo_dir_server }}/01-SQL/EOC/OneTimeExecution'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: list_oneTime_path.rc == 0
+
+  - name: Copy OneTimeExecution.sql to OneTimeExecution directory
+    copy:
+      src: '{{ repo_dir_server }}/01-SQL/EOC/{{ item }}'
+      dest: '{{ repo_dir_server }}/01-SQL/EOC/OneTimeExecution'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+      remote_src : yes
+    with_items: "{{ list_oneTime_short.stdout_lines }}"
+    become: yes
+    when: list_oneTime_path.rc == 0
+
+  - name: Run OneTimeExecution.sql files and flag them
+    shell: './run_EDB_DDL_via_cmd_line_linux.sh {{ eoc_db_host }} 5444 {{ eoc_db_user }} {{ eoc_db_pass }} {{ eoc_db_database }} {{ repo_dir_server }}/01-SQL/EOC/OneTimeExecution/{{ item }} {{ log_dir_eocecm }}/{{ eoc_file_name }}-custom_SQL_file_OneTimeExecution_{{ date_and_time }}.log && touch {{ tracking_dir_server }}/track/{{ item }}.track'
+    args:
+      chdir: '{{ symlink_eoc_dir }}/DDL/edb'
+      creates: "{{ tracking_dir_server }}/track/{{ item }}.track"
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    with_items: "{{ list_oneTime_short.stdout_lines }}"
+    when: list_oneTime_path.rc == 0
+
+  - name: Delete a OneTimeExecution directory for SQLs after execution
+    file:
+      path: '{{ repo_dir_server }}/01-SQL/EOC/OneTimeExecution'
+      state: absent
+    become: yes
+    when: list_oneTime_path.rc == 0

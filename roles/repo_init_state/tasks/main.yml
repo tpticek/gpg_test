@@ -1,0 +1,32 @@
+---
+# tasks file for repo_init_state
+
+################################################
+#----- Return repo to initial state -------#
+################################################
+
+  - name: Delete repo folder in working dir if it exist
+    file:
+      path: '{{ cicd_work_dir_server }}/repo'
+      state: absent
+    become: yes
+
+  - name: Create a repo directory in working dir if it does not exist
+    file:
+      path: '{{ cicd_work_dir_server }}/repo'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Unarchive a metadata zip file that is already on the remote machine
+    unarchive:
+      src: "{{ item }}"
+      dest: "{{ cicd_work_dir_server }}/repo"
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    with_fileglob:
+      - "{{ repo_dir_dds }}/*.zip"
+    become: yes

@@ -1,0 +1,38 @@
+eocecm_environment: DEV2_LT
+
+ecm_app_ip: 10.75.18.166
+eoc_app_ip: 10.75.18.165
+db_host: 10.75.18.167
+ecm_app_http_or_https: https
+
+ecm_db_user: ecm20
+ecm_db_pass: ECM20
+
+eoc_db_user: eoc20
+eoc_db_pass: EOC20
+
+folder_dest: /data/app
+symlink_eoc_dir: '{{ folder_dest }}/Ericsson/OrderCare_22.0.0_EP6.7_NELS'
+symlink_ecm_dir: '{{ folder_dest }}/Ericsson/CatalogManager_22.0.0_EP6.7_NELS'
+jboss_dir: '{{ folder_dest }}/jboss/eocecm_22.0.0_EP6.7_NELS'
+
+ecm_nodeid_main: ECM_PE_UI1
+ecm_nodeid_ecm_app: ecmUI
+ecm_nodeid_offer_manager: oma
+
+
+eoc_nodeid_main: EOC_PE_UI1
+eoc_nodeid_auth: auth1
+eoc_nodeid_order_manager: OM1
+eoc_nodeid_service_registry: sr
+eoc_nodeid_project_manager: pmm
+eoc_nodeid_project_producer: producer
+
+java_home_var: '{{ folder_dest }}/java/current_jdk'
+
+ecm_catalog_import: 'yes'
+ecm_catalog_list:
+  - exportedCatalog.zip
+
+ecm_catalog_path: '{{ repo_dir_server }}/02-CATALOG/{{ ecm_catalog_folder_name }}'
+ecm_catalog_folder_name: SOM_CM_Latest_Release

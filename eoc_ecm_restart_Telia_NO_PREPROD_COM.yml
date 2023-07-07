@@ -1,0 +1,104 @@
+---
+  - name: Sentinel Service
+    hosts: 
+      - no001ecmpprod-a
+      - no002ecmpprod-b
+    tasks:
+      - name: Start Sentinel service, if not started
+        service:
+          name: sentinel
+          state: started
+        become: yes
+
+  - name: Restart Sentinel Service
+    hosts:
+      - no001ecmpprod-a
+      - no002ecmpprod-b
+    tasks:
+      - name: Restart Sentinel service
+        service:
+          name: sentinel
+          state: restarted
+        become: yes
+        when: sentinel_restart == 'yes'
+
+  - name: Stop EOC COM Side A
+    hosts:
+      - no001eocpprod-a
+      - no002eocpprod-a
+      - no003eocpprod-a
+    roles:
+      - role: jboss_stop_eoc
+        when: eoc_stop_side_A == 'yes'
+
+  - name: Stop ECM COM Side A
+    hosts:
+      - no001ecmpprod-a
+    roles:
+      - role: jboss_stop_ecm
+        when: ecm_stop_side_A == 'yes'
+
+  - name: Start ECM COM Side A
+    hosts:
+      - no001ecmpprod-a
+    roles:
+      - role: jboss_start_ecm
+        when: ecm_start_side_A == 'yes'
+
+  - name: Start EOC COM Side A
+    hosts:
+      - no001eocpprod-a
+      - no002eocpprod-a
+      - no003eocpprod-a
+    roles:
+      - role: jboss_start_eoc
+        when: eoc_start_side_A == 'yes'
+
+
+
+  - name: Stop EOC COM Side B
+    hosts:
+      - no001eocpprod-b
+      - no002eocpprod-b
+      - no003eocpprod-b
+    roles:
+      - role: jboss_stop_eoc
+        when: eoc_stop_side_B == 'yes'
+
+  - name: Stop ECM COM Side B
+    hosts:
+      - no001ecmpprod-b
+    roles:
+      - role: jboss_stop_ecm
+        when: ecm_stop_side_B == 'yes'
+
+  - name: Start ECM COM Side B
+    hosts:
+      - no001ecmpprod-b
+    roles:
+      - role: jboss_start_ecm
+        when: ecm_start_side_B == 'yes'
+
+  - name: Start EOC COM Side B
+    hosts:
+      - no001eocpprod-b
+      - no002eocpprod-b
+      - no003eocpprod-b
+    roles:
+      - role: jboss_start_eoc
+        when: eoc_start_side_B == 'yes'
+
+# Restart EOC&ECM COM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PREPROD_COM.yml -v --extra-vars "sentinel_restart='no' eoc_stop_side_A='yes' ecm_stop_side_A='yes' ecm_start_side_A='yes' eoc_start_side_A='yes' eoc_stop_side_B='yes' ecm_stop_side_B='yes' ecm_start_side_B='yes' eoc_start_side_B='yes'"
+
+# Restart EOC&ECM COM Side A
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PREPROD_COM.yml -v --extra-vars "sentinel_restart='no' eoc_stop_side_A='yes' ecm_stop_side_A='yes' ecm_start_side_A='yes' eoc_start_side_A='yes' eoc_stop_side_B='no' ecm_stop_side_B='no' ecm_start_side_B='no' eoc_start_side_B='no'"
+
+# Restart EOC&ECM COM Side B
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PREPROD_COM.yml -v --extra-vars "sentinel_restart='no' eoc_stop_side_A='no' ecm_stop_side_A='no' ecm_start_side_A='no' eoc_start_side_A='no' eoc_stop_side_B='yes' ecm_stop_side_B='yes' ecm_start_side_B='yes' eoc_start_side_B='yes'"
+
+# Restart EOC COM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PREPROD_COM.yml -v --extra-vars "sentinel_restart='no' eoc_stop_side_A='yes' ecm_stop_side_A='no' ecm_start_side_A='no' eoc_start_side_A='yes' eoc_stop_side_B='yes' ecm_stop_side_B='no' ecm_start_side_B='no' eoc_start_side_B='yes'"
+
+# Restart ECM COM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PREPROD_COM.yml -v --extra-vars "sentinel_restart='no' eoc_stop_side_A='no' ecm_stop_side_A='yes' ecm_start_side_A='yes' eoc_start_side_A='no' eoc_stop_side_B='no' ecm_stop_side_B='yes' ecm_start_side_B='yes' eoc_start_side_B='no'"

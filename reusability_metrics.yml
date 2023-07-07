@@ -1,0 +1,17 @@
+---
+  - name: Execute command to find resuability metrics
+    hosts: "{{ variable_host_ecm }}"
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    roles:
+      - role: reusability_metrics
+        when: eocecm_environment == 'SIT1_LT' or eocecm_environment == 'SIT1_NO_SOM' or eocecm_environment == 'SIT_FI' or eocecm_environment == 'SIT1_NO_Mobile_SOM'
+
+
+# ansible-playbook -i inventory-eocecm reusability_metrics.yml -v --extra-vars "variable_host_ecm=Telia_NO_Mobile_SOM_SIT1_ecm variable_host_eoc=Telia_NO_Mobile_SIT1_SOM_eoc email_to='tomislav.pticek@ericsson.com'"
+# ansible-playbook -i inventory-eocecm common_vs_local.yml -v --extra-vars "variable_host_ecm=Telia_LT_SIT1_ecm variable_host_eoc=Telia_LT_SIT1_eoc"
+# ansible-playbook -i inventory-eocecm common_vs_local.yml -v --extra-vars "variable_host_ecm=Telia_FI_SIT_ecm variable_host_eoc=Telia_FI_SIT_eoc"

@@ -1,0 +1,43 @@
+---
+# tasks file for sentinel_stop
+  - name: Sentinel - Get running processes list from remote host
+    ignore_errors: yes
+    shell: "ps -ef |grep lserv | grep root |awk '{print $2}'"
+    register: running_processes
+    become: yes
+
+  # - debug:
+  #     var: running_processes.stdout_lines
+
+  - name: Sentinel - Kill running processes
+    ignore_errors: yes
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    become: yes
+
+  - name: Sentinel - Wait for processes to stop
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+      timeout: 60
+    # with_items: "{{ running_processes.stdout_lines[0] }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: stuck_processes
+    become: yes
+
+  - debug:
+      var: stuck_processes
+
+  - debug:
+      var: stuck_processes.results
+
+  - debug:
+      var: stuck_processes.results|select('failed')|map(attribute='item')|list
+
+
+  - name: Sentinel - Force kill stuck processes, if there is any
+    ignore_errors: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ stuck_processes.results | select('failed') | map(attribute='item') | list }}"
+    become: yes

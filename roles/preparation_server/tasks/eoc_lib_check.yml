@@ -1,0 +1,33 @@
+---
+  - name: Check does 03-LIB folder exist in tracking
+    stat:
+      path: '{{ tracking_dir_server }}/repo/03-LIB'
+    register: eoc_lib_check_track_var
+  # if repo folder in working didn't exist then we wouldn't have something to compare to
+
+  - name: Create a empty dir if 03-LIB folder doesn't exist in tracking
+    file:
+      path: '{{ tracking_dir_server }}/repo/03-LIB'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: not eoc_lib_check_track_var.stat.exists
+  # we are creating folder so we can use diff command
+  # this only happends if repo in working is not existing when we
+  # start this playbook so we can't copy to tracking repo
+
+  - name: Check did EOC metadata changed
+    command: 'diff -qr {{ repo_dir_server }}/03-LIB {{ tracking_dir_server }}/repo/03-LIB'
+    register: diff_eoc_lib_result
+    changed_when: diff_eoc_lib_result.rc != 0
+    failed_when: diff_eoc_lib_result.rc == 2
+
+  - debug:
+      var: diff_eoc_lib_result
+
+  - name: Register dummy EOC host with variable DUMMY_DIFF_EOC_LIB_RESULT
+    add_host:
+      name: "DUMMY_EOC"
+      DUMMY_DIFF_EOC_LIB_RESULT: "{{ diff_eoc_lib_result.changed }}"

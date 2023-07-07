@@ -1,0 +1,110 @@
+---
+  
+  - name: Stop EOC SOM Side A
+    hosts:
+      - no004eocprod-a
+      - no006eocprod-a
+    roles:
+      - role: jboss_stop_eoc
+        when: eoc_stop_side_A == 'yes'
+        
+  - name: Stop Karaf Side A
+    hosts:
+      - no005eocprod-a
+    roles:
+      - role: jboss_stop_karaf
+        when: eoc_stop_side_A == 'yes'
+
+  - name: Stop ECM SOM Side A
+    hosts:
+      - no002ecmprod-a
+    roles:
+      - role: jboss_stop_ecm
+        when: ecm_stop_side_A == 'yes'
+
+  - name: Start ECM SOM Side A
+    hosts:
+      - no002ecmprod-a
+    roles:
+      - role: jboss_start_ecm
+        when: ecm_start_side_A == 'yes'
+
+  - name: Start EOC SOM Side A
+    hosts:
+      - no004eocprod-a
+      - no006eocprod-a
+    roles:
+      - role: jboss_start_eoc
+        when: eoc_start_side_A == 'yes'
+
+  - name: Start Karaf Side A
+    hosts:
+      - no005eocprod-a
+    roles:
+      - role: jboss_start_karaf
+        when: eoc_start_side_A == 'yes'
+
+
+  - name: Stop EOC SOM Side B
+    hosts:
+      - no004eocprod-b
+      - no006eocprod-b
+    roles:
+      - role: jboss_stop_eoc
+        when: eoc_stop_side_B == 'yes'
+        
+  - name: Stop Karaf Side B
+    hosts:
+      - no005eocprod-b
+    roles:
+      - role: jboss_stop_karaf
+        when: eoc_stop_side_B == 'yes'
+
+
+  - name: Stop ECM SOM Side B
+    hosts:
+      - no002ecmprod-b
+    roles:
+      - role: jboss_stop_ecm
+        when: ecm_stop_side_B == 'yes'
+
+  - name: Start ECM SOM Side B
+    hosts:
+      - no002ecmprod-b
+    roles:
+      - role: jboss_start_ecm
+        when: ecm_start_side_B == 'yes'
+
+  - name: Start EOC SOM Side B
+    hosts:
+      - no004eocprod-b
+      - no006eocprod-b
+    roles:
+      - role: jboss_start_eoc
+        when: eoc_start_side_B == 'yes'
+        
+
+  - name: Start Karaf Side B
+    hosts:
+      - no005eocprod-b
+    roles:
+      - role: jboss_start_karaf
+        when: eoc_start_side_B == 'yes'
+
+
+# Restart EOC&ECM SOM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='yes' ecm_stop_side_A='yes' ecm_start_side_A='yes' eoc_start_side_A='yes' eoc_stop_side_B='yes' ecm_stop_side_B='yes' ecm_start_side_B='yes' eoc_start_side_B='yes'"
+
+# Restart EOC&ECM SOM Side A
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='yes' ecm_stop_side_A='yes' ecm_start_side_A='yes' eoc_start_side_A='yes' eoc_stop_side_B='no' ecm_stop_side_B='no' ecm_start_side_B='no' eoc_start_side_B='no'"
+
+# Restart EOC&ECM SOM Side B
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='no' ecm_stop_side_A='no' ecm_start_side_A='no' eoc_start_side_A='no' eoc_stop_side_B='yes' ecm_stop_side_B='yes' ecm_start_side_B='yes' eoc_start_side_B='yes'"
+
+# Restart EOC SOM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='yes' ecm_stop_side_A='no' ecm_start_side_A='no' eoc_start_side_A='yes' eoc_stop_side_B='yes' ecm_stop_side_B='no' ecm_start_side_B='no' eoc_start_side_B='yes'"
+
+# Restart ECM SOM Side A and Side B 
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_PROD_SOM.yml -v --extra-vars "eoc_stop_side_A='no' ecm_stop_side_A='yes' ecm_start_side_A='yes' eoc_start_side_A='no' eoc_stop_side_B='no' ecm_stop_side_B='yes' ecm_start_side_B='yes' eoc_start_side_B='no'"
+
+

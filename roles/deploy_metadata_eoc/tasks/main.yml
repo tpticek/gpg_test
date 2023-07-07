@@ -1,0 +1,95 @@
+---
+# tasks file for deploy_metadata_eoc
+  - name: Create LOG folder
+    file:
+      path: '{{ log_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Create EOC-ECM LOG folder
+    file:
+      path: '{{ log_dir_eocecm }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+###############################################################################
+#----------Ericsson Order Care - Config Export -------------#
+###############################################################################
+
+  - name: Execute EOC Config export
+    include: eoc_config_export.yml
+    when: diff_eoc_result.changed
+
+###############################################################################
+#----------Ericsson Order Care - Deploy Application -------------#
+###############################################################################
+
+  - name: Execute EOC deploy.sh command
+    include: eoc_deploy_sh.yml
+    when: diff_eoc_result.changed
+
+##############################################
+#----- Import Configuration from Repo -------#
+##############################################
+
+  # - name: Check is config file in place!?
+  #   stat:
+  #     path: '{{ eoc_config_import_file }}'
+  #   register: import_file
+  #
+  # - name: Import configuration from repository
+  #   include_role:
+  #     name: config_import_eoc
+  #   when: eoc_import_config == 'yes' and import_file.stat.isreg is defined and diff_eoc_config_result.changed
+
+##############################################################################
+#-----Ericsson Order Care - Run the SQL Files and Upgrade Database-------#
+##############################################################################
+
+  - name: Execute EOC generateUpgradeSQL.sh command
+    include: eoc_generateUpgradeSQL.yml
+    when: diff_eoc_result.changed
+
+################################################
+#----- Track last successful deployment -------#
+################################################
+
+  - name: Write latest git commit id to tracking files
+    include: eoc_tracking_git_id.yml
+    when: diff_eoc_result.changed
+
+# ##################################################################
+# #----- Execute OneTimeExecution SQL created by developers -------#
+# ##################################################################
+#
+#   - name: Execute EOC OneTimeExecution SQL created by developers
+#     include: eoc_OneTimeExecution.yml
+#     when: diff_eoc_sql_result.changed
+#
+# ################################################
+# #----- Execute SQL created by developers -------#
+# ################################################
+#
+#   - name: Check is SQL created by developer in place!?
+#     stat:
+#       path: '{{ eoc_custom_SQL_path }}/{{ eoc_custom_SQL_file }}'
+#     register: upgrade_sql
+#
+#   - name: Execute custom SQL EOC.
+#     include_role:
+#       name: execute_custom_sql_eoc
+#     when: eoc_execute_custom_SQL == 'yes' and upgrade_sql.stat.isreg is defined and diff_eoc_sql_result.changed
+#
+# ################################################
+# #----- Return repo to initial state -------#
+# ################################################
+#
+#   - name: Return repo to initial state
+#     include: repo_inital_state.yml
+#     when: diff_eoc_result.changed

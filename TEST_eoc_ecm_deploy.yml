@@ -1,0 +1,62 @@
+---
+  - name: Deploy ECM
+    # hosts: "{{ variable_host_eoc }}"
+    hosts: ecm_local_test
+    roles:
+      - role: preparation_server
+        when: ecm_deploy == 'yes'
+
+      - role: deploy_metadata_ecm
+        when: ecm_deploy == 'yes'
+
+      - role: jboss_stop_ecm
+        when: ecm_deploy == 'yes'
+
+      - role: jboss_start_ecm
+        when: ecm_deploy == 'yes'
+
+      # - role: catalog_import_ecm
+      #   when: ecm_deploy == 'yes'
+
+      # - sentinel_start
+      # # - sentinel_stop
+      # - jboss_stop_eoc
+      # - jboss_stop_ecm
+      # - jboss_start_ecm
+      # - jboss_start_eoc
+
+  - name: Deploy EOC
+    # hosts: "{{ variable_host_ecm }}"
+    hosts: eoc_local_test
+    roles:
+      - role: preparation_server
+        when: eoc_deploy == 'yes'
+
+      - role: deploy_metadata_eoc
+        when: eoc_deploy == 'yes'
+
+      - role: jboss_stop_eoc
+        when: eoc_deploy == 'yes'
+
+      - role: deploy_om_war
+        when: eoc_deploy == 'yes'
+
+      - role: jboss_start_eoc
+        when: eoc_deploy == 'yes'
+
+      - catalog_import_ecm
+
+# ansible-playbook -i inventory-eocecm  TEST_eoc_ecm_deploy.yml -v --extra-vars "variable_host_ecm=ecm_local_test variable_host_eoc=eoc_local_test"
+
+  # - name: Deploy EOC
+  #   hosts: eoc
+  #   roles:
+  #     - jboss_stop_eoc
+  #     - jboss_stop_ecm
+  #     - jboss_start_ecm
+  #     - jboss_start_eoc
+
+  # - name: Deploy EOC
+  #   hosts: eoc
+  #   roles:
+  #     - rollback_eoc

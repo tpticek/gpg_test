@@ -1,0 +1,16 @@
+---
+ 
+  - name: Stop EOC
+    hosts:
+      - no001eocsit1app
+    roles:
+      - jboss_stop_eoc
+
+  - name: Stop ECM
+    hosts:
+      - no001ecmsit1app
+    roles:
+      - jboss_stop_ecm
+
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_stop_Telia_NO_Mobile_SIT1.yml -v

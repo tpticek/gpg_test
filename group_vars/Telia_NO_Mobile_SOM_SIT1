@@ -1,0 +1,44 @@
+eocecm_environment: SIT1_NO_Mobile_SOM
+
+ecm_app_ip: 10.87.154.185
+eoc_app_ip: 10.87.154.187
+db_host: 131.116.165.192
+
+ecm_db_database: nomobilesit1ecm
+eoc_db_database: nomobilesit1eoc
+
+ecm_app_name: ecm
+eoc_app_name: eoc
+
+ecm_db_user: ecm_sit1_tnm
+ecm_db_pass: ECM_SIT1_TNM
+
+eoc_db_user: eoc_sit1_tnm
+eoc_db_pass: EOC_SIT1_TNM
+
+symlink_eoc_dir: '{{ folder_dest }}/Ericsson/OrderCare_22.0.0_EP5.12_NELS'
+symlink_ecm_dir: '{{ folder_dest }}/Ericsson/CatalogManager_22.0.0_EP5.12_NELS'
+jboss_dir: '{{ folder_dest }}/jboss/eocecm_22.0.0_EP5.12_NELS'
+
+ecm_nodeid_main: ECM_PE_UI1
+ecm_nodeid_ecm_app: ecmUI
+ecm_nodeid_offer_manager: oma
+
+eoc_nodeid_main: EOC_PE_UI1
+eoc_nodeid_auth: auth1
+eoc_nodeid_order_manager: OM1
+eoc_nodeid_service_registry: sr
+eoc_nodeid_project_manager: pmm
+eoc_nodeid_project_producer: producer
+
+ecm_catalog_import: 'yes'
+ecm_catalog_list:
+  - exportedCatalog.zip
+
+ecm_catalog_path: '{{ repo_dir_server }}/02-CATALOG/{{ ecm_catalog_folder_name }}'
+ecm_catalog_folder_name: SOM_CM_Latest_Release
+
+smtp_server: 'relay.telia.no:25'
+email_subject: 'Common vs Local Catalog Items - Norway Mobile'
+email_to: 'tomislav.pticek@ericsson.com'
+email_from: 'no-reply.eocecm-devops@telia.no'

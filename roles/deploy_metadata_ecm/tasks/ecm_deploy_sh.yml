@@ -1,0 +1,34 @@
+---
+###############################################################################
+#----------Ericsson Catalog Manager - Deploy Application -------------#
+###############################################################################
+
+  - name: Deploy Metadata using deploy.sh command
+    shell: './deploy.sh {{ ecm_database_string }} {{ ecm_app_name }} {{ ecm_app_version }} {{ ecm_metadata_path }} {{ ecm_create_DB_app }} {{ ecm_generate_wsdl }}'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/designer/env'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'deploy_sh'
+
+  - name: Save log from deploy.sh command
+    copy:
+      content: "{{ deploy_sh.stdout }}"
+      dest: "{{ log_dir_eocecm }}/{{ ecm_file_name }}-deploy_sh_{{ date_and_time }}.log"
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+
+  - name: Add command we used in previous task to log
+    blockinfile:
+      path: "{{ log_dir_eocecm }}/{{ ecm_file_name }}-deploy_sh_{{ date_and_time }}.log"
+      block: |
+        ##################################################################################################################################################
+        ####### {{ deploy_sh.cmd }} #######
+        ##################################################################################################################################################
+      marker: "\n# {mark} ANSIBLE MANAGED BLOCK\n"
+      insertbefore: BOF
+    become: yes
+    become_user: '{{ user_for_eocecm }}'

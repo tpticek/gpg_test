@@ -1,0 +1,40 @@
+eocecm_environment: Telia_NO_PROD_SOM
+
+ecm_app_http_or_https: https
+ecm_app_ip: 127.0.0.1
+eoc_app_ip: prod.som.telia.no
+eoc_db_host: 10.87.154.103
+ecm_db_host: 10.87.154.104
+
+ecm_app_name: ecm22_som
+eoc_app_name: eoc22_som
+
+ecm_db_user: ecm22_som
+ecm_db_pass: ECM22_som
+
+ecm_db_database: ecm_production
+eoc_db_database: eoc_production
+ordering_api_service_user: karafeoc
+ordering_api_service_name: OrderingAPI22EP05
+
+eoc_db_user: eoc22_som
+eoc_db_pass: EOC22_som
+
+folder_dest: /app
+symlink_eoc_dir: '{{ folder_dest }}/Ericsson/OrderCare_22.0.0_EP5.12_NELS'
+symlink_ecm_dir: '{{ folder_dest }}/Ericsson/CatalogManager_22.0.0_EP5.12_NELS'
+jboss_dir: '{{ folder_dest }}/jboss/eocecm_22.0.0_EP5.12_NELS'
+
+java_home_var: '{{ folder_dest }}/java/current_jdk'
+
+ecm_catalog_import: 'yes'
+ecm_catalog_list:
+  - exportedCatalog.zip
+
+ecm_catalog_path: '{{ repo_dir_server }}/02-CATALOG/{{ ecm_catalog_folder_name }}'
+ecm_catalog_folder_name: PI_Sprint_Latest
+
+smtp_server: 'relay.telia.no:25'
+email_subject: 'Common vs Local Catalog Items'
+email_to: 'bernard.cosic@ericsson.com miran.medak@ericsson.com antti.miettinen@ericsson.com lazaros.lentzaris@ericsson.com stefano.crosio@ericsson.com shakeel.saleem@ericsson.com'
+email_from: 'no-reply.eocecm-devops@telia.no'

@@ -1,0 +1,95 @@
+---
+# tasks file for deploy_metadata_ecm
+  - name: Create LOG folder
+    file:
+      path: '{{ log_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Create EOC-ECM LOG folder
+    file:
+      path: '{{ log_dir_eocecm }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+###############################################################################
+#----------Ericsson Catalog Manager - Config Export -------------#
+###############################################################################
+
+  - name: Execute ECM Config export
+    include: ecm_config_export.yml
+    when: diff_ecm_result.changed
+
+###############################################################################
+#----------Ericsson Catalog Manager - Deploy Application -------------#
+###############################################################################
+
+  - name: Execute ECM deploy.sh command
+    include: ecm_deploy_sh.yml
+    when: diff_ecm_result.changed
+
+##############################################
+#----- Import Configuration from Repo -------#
+##############################################
+
+  # - name: Check is config file in place!?
+  #   stat:
+  #     path: '{{ ecm_config_import_file }}'
+  #   register: import_file
+  #
+  # - name: Import configuration from repository
+  #   include_role:
+  #     name: config_import_ecm
+  #   when: ecm_import_config == 'yes' and import_file.stat.isreg is defined and diff_ecm_config_result.changed
+
+##############################################################################
+#-----Ericsson Catalog Manager - Run the SQL Files and Upgrade Database-------#
+##############################################################################
+
+  - name: Execute ECM generateUpgradeSQL.sh command
+    include: ecm_generateUpgradeSQL.yml
+    when: diff_ecm_result.changed
+
+################################################
+#----- Track last successful deployment -------#
+################################################
+
+  - name: Write latest git commit id to tracking files
+    include: ecm_tracking_git_id.yml
+    when: diff_ecm_result.changed
+
+# ##################################################################
+# #----- Execute OneTimeExecution SQL created by developers -------#
+# ##################################################################
+#
+#   - name: Execute ECM OneTimeExecution SQL created by developers
+#     include: ecm_OneTimeExecution.yml
+#     when: diff_ecm_sql_result.changed
+#
+# ################################################
+# #----- Execute SQL created by developers -------#
+# ################################################
+#
+#   - name: Check is SQL created by developer in place!?
+#     stat:
+#       path: '{{ ecm_custom_SQL_path }}/{{ ecm_custom_SQL_file }}'
+#     register: upgrade_sql
+#
+#   - name: Execute custom SQL ECM.
+#     include_role:
+#       name: execute_custom_sql_ecm
+#     when: ecm_execute_custom_SQL == 'yes' and upgrade_sql.stat.isreg is defined and diff_ecm_sql_result.changed
+
+################################################
+#----- Return repo to initial state -------#
+################################################
+
+  - name: Return repo to initial state
+    include: repo_inital_state.yml
+    when: diff_ecm_result.changed

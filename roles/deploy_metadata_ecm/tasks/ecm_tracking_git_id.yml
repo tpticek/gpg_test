@@ -1,0 +1,51 @@
+---
+################################################
+#----- Track last successful deployment -------#
+################################################
+
+  - name: Check if tracking file exist
+    stat:
+      path: '{{ tracking_dir_server }}/ecm_last_successful_build.txt'
+    register: tracking_file
+
+  - name: Copy tracking files
+    copy:
+      src: '{{ tracking_dir_server }}/ecm_last_successful_build.txt'
+      dest: '{{ tracking_dir_server }}/ecm_second_to_last_successful_build.txt'
+      remote_src: yes
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    when: tracking_file.stat.isreg is defined
+
+  - name: Copy tracking files - details
+    copy:
+      src: '{{ tracking_dir_server }}/ecm_last_successful_build_details.txt'
+      dest: '{{ tracking_dir_server }}/ecm_second_to_last_successful_build_details.txt'
+      remote_src: yes
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    when: tracking_file.stat.isreg is defined
+
+  - name: Write commit ID in ecm_last_successful_build.txt
+    template:
+      src: last_successful_build.j2
+      dest: '{{ tracking_dir_server }}/ecm_last_successful_build.txt'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Write commit ID in ecm_last_successful_build_details.txt
+    template:
+      src: last_successful_build_details.j2
+      dest: '{{ tracking_dir_server }}/ecm_last_successful_build_details.txt'
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes

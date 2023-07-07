@@ -1,0 +1,35 @@
+---
+  - name: Sentinel Service
+    hosts: Telia_NO_Mobile_SOM_AT_ecm
+    tasks:
+      - name: Start Sentinel service, if not started
+        service:
+          name: sentinel
+          state: started
+        become: yes
+
+  - name: Stop EOC
+    hosts:
+      - Telia_NO_Mobile_SOM_AT_eoc
+    roles:
+      - jboss_stop_eoc
+
+  - name: Stop ECM
+    hosts:
+      - Telia_NO_Mobile_SOM_AT_ecm
+    roles:
+      - jboss_stop_ecm
+
+  - name: Start ECM
+    hosts:
+      - Telia_NO_Mobile_SOM_AT_ecm
+    roles:
+      - jboss_start_ecm
+
+  - name: Start EOC
+    hosts:
+      - Telia_NO_Mobile_SOM_AT_eoc
+    roles:
+      - jboss_start_eoc
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_Mobile_AT.yml -v

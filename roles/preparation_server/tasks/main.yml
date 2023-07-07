@@ -1,0 +1,143 @@
+---
+# tasks file for preparation_server
+
+  - name: Create a CICD working directory if it does not exist
+    file:
+      path: '{{ cicd_work_dir_server }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  # - name: Create a tracking directory if it does not exist
+    # file:
+      # path: '{{ tracking_dir_server }}'
+      # state: directory
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+
+  - name: Create a logs directory if it does not exist
+    file:
+      path: '{{ logs_dir_server }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Create a backup directory if it does not exist
+    file:
+      path: '{{ config_backup_dir_server }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  # - name: Delete repo folder in tracking if it exist
+    # file:
+      # path: '{{ tracking_dir_server }}/repo'
+      # state: absent
+    # become: yes
+
+  # - name: Create a repo directory in tracking if it does not exist
+    # file:
+      # path: '{{ tracking_dir_server }}/repo'
+      # state: directory
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+    # become: yes
+  # # This repo in tracking is needed to copy metadata that was previously deployed
+
+  - name: Check does repo in working dir exists
+    stat:
+      path: '{{ cicd_work_dir_server }}/repo'
+    register: repo_dir_reg
+
+  # - name: Copy existing repo in working dir to tracking folder
+    # copy:
+      # src: '{{ cicd_work_dir_server }}/repo/'
+      # dest: '{{ tracking_dir_server }}/repo'
+      # mode: '0775'
+      # owner: '{{ user_for_eocecm }}'
+      # group: '{{ group_for_eocecm }}'
+      # remote_src: yes
+    # become: yes
+    # when: repo_dir_reg.stat.isdir is defined and repo_dir_reg.stat.isdir
+  # # if it is first time repo in working doeasnt exist so it
+  # # is unable to copy repo from working to tracking
+
+  - name: Delete repo folder in working dir if it exist
+    file:
+      path: '{{ cicd_work_dir_server }}/repo'
+      state: absent
+    become: yes
+
+  - name: Create a repo directory in working dir if it does not exist
+    file:
+      path: '{{ cicd_work_dir_server }}/repo'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - name: Unarchive a metadata zip file that is already on the remote machine
+    unarchive:
+      src: "{{ item }}"
+      dest: "{{ cicd_work_dir_server }}/repo"
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+      mode: '0775'
+    with_fileglob:
+      - "{{ repo_dir_dds }}/*.zip"
+    become: yes
+
+#### EOC metadata files CHECK ####
+
+  # - name: Check are there changes in EOC metadata
+    # include: eoc_check.yml
+
+#### ECM metadata files CHECK ####
+
+  # - name: Check are there changes in ECM metadata
+    # include: ecm_check.yml
+
+#### ECM catalog file CHECK ####
+
+  - name: Check if catalog is available for import changes in catalog zip
+    include: ecm_catalog_check.yml
+
+#### EOC SQL files CHECK ####
+
+  # - name: Check are there changes in EOC SQL files
+    # include: eoc_sql_check.yml
+
+#### ECM SQL files CHECK ####
+
+  # - name: Check are there changes in ECM SQL files
+    # include: ecm_sql_check.yml
+
+#### EOC config file CHECK ####
+
+  # - name: Check are there changes in EOC config file
+    # include: eoc_config_check.yml
+
+#### ECM config file CHECK ####
+
+  # - name: Check are there changes in ECM config file
+    # include: ecm_config_check.yml
+
+#### EOC Library folder CHECK ####
+  # - name: Check does 03-LIB folder exist in repo
+    # stat:
+      # path: '{{ repo_dir_server }}/03-LIB'
+    # register: eoc_lib_check_repo_var
+
+  # - name: Check are there changes in 03-LIB folder
+    # include: eoc_lib_check.yml
+    # when: eoc_lib_check_repo_var.stat.exists

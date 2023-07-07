@@ -1,0 +1,27 @@
+---
+
+  - name: Stop EOC
+    hosts:
+      - Telia_NO_Mobile_SOM_AT_R22_eoc
+    roles:
+      - jboss_stop_eoc
+
+  - name: Stop ECM
+    hosts:
+      - Telia_NO_Mobile_SOM_AT_R22_ecm
+    roles:
+      - jboss_stop_ecm
+
+  - name: Start ECM
+    hosts:
+      - Telia_NO_Mobile_SOM_AT_R22_ecm
+    roles:
+      - jboss_start_ecm
+
+  - name: Start EOC
+    hosts:
+      - Telia_NO_Mobile_SOM_AT_R22_eoc
+    roles:
+      - jboss_start_eoc
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_NO_Mobile_AT_R22.yml -v

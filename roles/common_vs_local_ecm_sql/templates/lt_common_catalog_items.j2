@@ -1,0 +1,2 @@
+select count(*) from {{ ecm_db_user }}.cwpc_itemattribute_v where catalogobjecttype = 'item' and itemattributecode <> 'version' and itemcode in (select baseitemcode from
+{{ ecm_db_user }}.cwpc_item where (itemcode like 'CFSS_LT%' or itemcode like 'RFSS_LT%' or itemcode like 'RS_LT%'));

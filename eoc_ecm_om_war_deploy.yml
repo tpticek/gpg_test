@@ -1,0 +1,14 @@
+  - name: Deploy OM Dashboard
+    hosts: "{{ variable_host_eoc }}"
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    roles:
+      - role: deploy_om_war_from_build
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_om_war_deploy.yml -v --extra-vars "variable_host_eoc=Telia_NO_DEV2_SOM_eoc eoc_deploy_om_remote_src=no eoc_deploy_om_war_file=/tmp/om.war git_commit_id=TEST_GIT_ID"" --step

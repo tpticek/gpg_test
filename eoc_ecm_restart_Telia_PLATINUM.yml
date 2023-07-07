@@ -1,0 +1,39 @@
+---
+  - name: Sentinel Service
+    hosts:
+      - ow700ecm-cmn1.ddc.teliasonera.net
+      - ow700eoc-cmn1.ddc.teliasonera.net
+    tasks:
+      - name: Start Sentinel service, if not started
+        service:
+          name: sentinel
+          state: started
+        become: yes
+
+  - name: Stop EOC
+    hosts:
+      - ow700eoc-cmn1.ddc.teliasonera.net
+    roles:
+      - jboss_stop_eoc
+
+  - name: Stop ECM
+    hosts:
+      - ow700ecm-cmn1.ddc.teliasonera.net
+    roles:
+      - jboss_stop_ecm
+
+  - name: Start ECM
+    hosts:
+      - ow700ecm-cmn1.ddc.teliasonera.net
+    roles:
+      - jboss_start_ecm
+
+  - name: Start EOC
+    hosts:
+      - ow700eoc-cmn1.ddc.teliasonera.net
+    roles:
+      - jboss_start_eoc
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_PLATINUM.yml -v
+# v22 - ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_PLATINUM.yml -v --extra-vars "ecm_app_name=ecm20 eoc_app_name=eoc20 user_for_jboss=jboss user_for_eocecm=eocecm cicd_work_dir_server='{{ folder_dest }}/working_dir_cicd' jboss_dir='{{ folder_dest }}/jboss/eocecm_22.0.0_EP5.12_NELS'"
+# v21 - ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_PLATINUM.yml -v --extra-vars "ecm_app_name=ecm21 eoc_app_name=eoc21 user_for_jboss=jboss2 user_for_eocecm=eocecm cicd_work_dir_server='{{ folder_dest }}/working_dir_cicd_v21' jboss_dir='{{ folder_dest }}/jboss/eocecm_21.0_R1A_5_0084'"

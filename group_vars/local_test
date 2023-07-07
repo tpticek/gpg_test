@@ -1,0 +1,19 @@
+eocecm_environment: LOC_ENV
+
+ecm_app_ip: 192.168.135.211
+eoc_app_ip: 192.168.135.211
+db_host: 172.28.19.86
+
+ecm_db_user: ecm20_1
+ecm_db_pass: ECM20_1
+
+eoc_db_user: eoc20_1
+eoc_db_pass: EOC20_1
+
+folder_dest: /data/app
+symlink_eoc_dir: '{{ folder_dest }}/Ericsson/TEST_OrderCare_20.0_R1C_1_0020'
+symlink_ecm_dir: '{{ folder_dest }}/Ericsson/TEST_CatalogManager_20.0_R1C_1_0020'
+jboss_dir: '{{ folder_dest }}/jboss/TEST_eocecm_20.0_R1C_1_0020'
+git_commit_id: XXXXXXXX
+
+repo_dir_dds: /tmp/repo

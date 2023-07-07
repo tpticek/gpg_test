@@ -1,0 +1,105 @@
+---
+  - name: Deploy EOC
+    hosts: "{{ variable_host_eoc }}"
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    roles:
+      - role: preparation_server
+        when: eoc_deploy == 'yes'
+
+      - role: deploy_metadata_eoc
+        when: eoc_deploy == 'yes' and diff_eoc_result.changed
+
+      - role: config_import_eoc
+        when: eoc_deploy == 'yes' and repo_eoc_config_reg.stat.isreg is defined and diff_eoc_config_result.changed
+
+      - role: execute_custom_sql_eoc
+        when: eoc_deploy == 'yes' and repo_eoc_main_sql_check.stat.isreg is defined and diff_eoc_sql_result.changed
+
+      - role: execute_one_time_sql_eoc
+        when: eoc_deploy == 'yes' and diff_eoc_sql_result.changed
+
+      - role: buildLibrary_eocecm
+        vars:
+          build_library_working_dir: '{{ symlink_eoc_dir }}/designer/env'
+          build_metadata_path: '{{ repo_dir_server }}/03-LIB/1-EOC-Common'
+          build_library_name: 'telia_common'
+        when: eoc_deploy == 'yes' and (eocecm_environment == 'PLATINUM' or eocecm_environment == 'PLATINUM_v21') and diff_eoc_lib_result.changed
+
+      - role: artifactory_upload
+        vars:
+          build_library_name: 'telia_common'
+          artifactory_upload_working_dir: '{{ symlink_eoc_dir }}/designer/env'
+          artifactory_file_path: '{{ repo_dir_server }}/03-LIB/1-EOC-Common/{{ build_library_name }}.jar'
+        when: eoc_deploy == 'yes' and (eocecm_environment == 'PLATINUM' or eocecm_environment == 'PLATINUM_v21') and diff_eoc_lib_result.changed
+
+      - role: artifactory_download
+        vars:
+          build_library_name: 'telia_common'
+          artifactory_download_dir: '{{ repo_dir_server }}/03-LIB/2-EOC-MobileConnectivity_Common/templates'
+        when: eoc_deploy == 'yes' and (eocecm_environment == 'PLATINUM' or eocecm_environment == 'PLATINUM_v21') and diff_eoc_lib_result.changed
+
+      - role: buildLibrary_eocecm
+        vars:
+          build_library_working_dir: '{{ symlink_eoc_dir }}/designer/env'
+          build_metadata_path: '{{ repo_dir_server }}/03-LIB/2-EOC-MobileConnectivity_Common'
+          build_library_name: 'telia_mobileconnectivity_common'
+        when: eoc_deploy == 'yes' and (eocecm_environment == 'PLATINUM' or eocecm_environment == 'PLATINUM_v21') and diff_eoc_lib_result.changed
+
+      - role: artifactory_upload
+        vars:
+          build_library_name: 'telia_mobileconnectivity_common'
+          artifactory_upload_working_dir: '{{ symlink_eoc_dir }}/designer/env'
+          artifactory_file_path: '{{ repo_dir_server }}/03-LIB/2-EOC-MobileConnectivity_Common/{{ build_library_name }}.jar'
+        when: eoc_deploy == 'yes' and (eocecm_environment == 'PLATINUM' or eocecm_environment == 'PLATINUM_v21') and diff_eoc_lib_result.changed
+
+      - role: repo_init_state
+        when: eoc_deploy == 'yes'
+
+      - role: jboss_stop_eoc
+        when:
+          - eoc_deploy == 'yes'
+          - diff_eoc_result.changed or diff_eoc_config_result.changed or diff_ecm_result.changed or diff_catalog_result.changed or diff_ecm_config_result.changed
+
+      - role: deploy_om_war
+        when: eoc_deploy == 'yes'
+
+      - role: deploy_sr_war
+        when: eoc_deploy == 'yes'
+
+      - role: jboss_start_eoc
+        when:
+          - eoc_deploy == 'yes'
+          - diff_eoc_result.changed or diff_eoc_config_result.changed or diff_ecm_result.changed or diff_catalog_result.changed or diff_ecm_config_result.changed
+      # - catalog_import_ecm
+
+  - name: Restart Apche Karaf
+    hosts: "{{ variable_host_eoc }}_karaf"
+    roles:
+      - role: jboss_start_karaf
+        when: eoc_deploy == 'yes'
+
+
+# if there is change in SQL only then just execute SQL do not restart
+
+  # - name: Deploy EOC
+  #   hosts: eoc
+  #   roles:
+  #     - jboss_stop_eoc
+  #     - jboss_stop_ecm
+  #     - jboss_start_ecm
+  #     - jboss_start_eoc
+
+  # - name: Deploy EOC
+  #   hosts: eoc
+  #   roles:
+  #     - rollback_eoc
+
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_deploy.yml -v --extra-vars "variable_host_ecm=Telia_LT_DEV2_ecm variable_host_eoc=Telia_LT_DEV2_eoc git_commit_id=${bamboo.planRepository.1.revision}"

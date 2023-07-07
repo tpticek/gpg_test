@@ -1,0 +1,59 @@
+---
+  - name: Sentinel Service
+    hosts: 
+      - srv-t-ecmappua1
+      - srv-t-eocappua1
+    tasks:
+      - name: Start Sentinel service, if not started
+        service:
+          name: sentinel
+          state: started
+        become: yes
+
+  - name: Restart Sentinel Service
+    hosts:
+      - srv-t-ecmappua1
+      - srv-t-eocappua1
+    tasks:
+      - name: Restart Sentinel service
+        service:
+          name: sentinel
+          state: restarted
+        become: yes
+        when: sentinel_restart == 'yes'
+
+  - name: Stop EOC SOM Side A
+    hosts:
+      - srv-t-eocappua1
+      - srv-t-eocappua3
+    roles:
+      - role: jboss_stop_eoc
+        when: eoc_stop_side_A == 'yes'
+
+  - name: Stop ECM SOM Side A
+    hosts:
+      - srv-t-ecmappua1
+    roles:
+      - role: jboss_stop_ecm
+        when: ecm_stop_side_A == 'yes'
+
+  - name: Start ECM SOM Side A
+    hosts:
+      - srv-t-ecmappua1
+    roles:
+      - role: jboss_start_ecm
+        when: ecm_start_side_A == 'yes'
+
+  - name: Start EOC SOM Side A
+    hosts:
+      - srv-t-eocappua1
+      - srv-t-eocappua3
+    roles:
+      - role: jboss_start_eoc
+        when: eoc_start_side_A == 'yes'
+
+
+
+
+# Restart EOC&ECM SOM Side A
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_LT_UAT.yml -v --extra-vars "sentinel_restart='no' eoc_stop_side_A='yes' ecm_stop_side_A='yes' ecm_start_side_A='yes' eoc_start_side_A='yes'"

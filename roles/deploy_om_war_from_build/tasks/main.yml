@@ -1,0 +1,79 @@
+---
+# tasks file for deploy_om_war
+  - name: Copy om.war file for this environment
+    copy:
+      src: '{{ eoc_deploy_om_war_file }}'
+      dest: '{{ jboss_eoc_dir }}/standalone_{{ eoc_nodeid_order_manager }}/deployments/om.war'
+      remote_src: '{{ eoc_deploy_om_remote_src }}'
+      mode: '0775'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+      backup: yes
+    register: backup_variable
+    become: yes
+    # when: om_war_file.stat.isreg is defined
+
+  - name: Check if backup om.war for this environment exist
+    stat:
+      path: '{{ backup_variable.backup_file }}'
+    register: backup_check
+    when: backup_variable.changed and backup_variable.backup_file is defined
+
+  - name: Create a om.war backup directory if it does not exist
+    file:
+      path: '{{ config_backup_dir_server }}/om/om_{{ date_and_time }}_{{ git_commit_id }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    when: backup_variable.changed and backup_variable.backup_file is defined
+
+  - name: Copy backup of om.war file
+    copy:
+      src: '{{ backup_variable.backup_file }}'
+      dest: '{{ config_backup_dir_server }}/om/om_{{ date_and_time }}_{{ git_commit_id }}/'
+      remote_src: yes
+      mode: '0775'
+      owner: '{{ user_for_jboss }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    ignore_errors: yes
+    when: backup_variable.changed and backup_variable.backup_file is defined
+
+  - name: Delete backup of om.war file from deployments folder
+    file:
+      path: '{{ backup_variable.backup_file }}'
+      state: absent
+    become: yes
+    when: backup_variable.changed and backup_variable.backup_file is defined
+
+  - name: Sleep for 20 seconds and continue with play
+    wait_for:
+      timeout: 20
+
+  - name: Delete om.war.deployed/undeployed files from deployments folder
+    file:
+      path: '{{ item }}'
+      state: absent
+    become: yes
+    with_items:
+      # - '{{ jboss_eoc_dir }}/standalone_OM1/deployments/om.war'
+      - '{{ jboss_eoc_dir }}/standalone_{{ eoc_nodeid_order_manager }}/deployments/om.war.deployed_IGNORE'
+      - '{{ jboss_eoc_dir }}/standalone_{{ eoc_nodeid_order_manager }}/deployments/om.war.undeployed'
+      - '{{ jboss_eoc_dir }}/standalone_{{ eoc_nodeid_order_manager }}/deployments/om.war.failed'
+    when: backup_variable.changed
+
+  - name: Sleep for 30 seconds and continue with play
+    wait_for:
+      timeout: 30
+
+  - name: Check does om.war.deployed file exist in deployments folder
+    stat:
+      path: '{{ jboss_eoc_dir }}/standalone_{{ eoc_nodeid_order_manager }}/deployments/om.war.deployed'
+    register: om_war_deployed_file
+
+  - name: Fail if om.war.deployed is not present
+    fail:
+      msg: File om.war is not deployed.
+    when: om_war_deployed_file.stat.exists == false

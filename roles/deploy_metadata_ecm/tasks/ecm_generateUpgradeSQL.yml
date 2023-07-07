@@ -1,0 +1,135 @@
+---
+##############################################################################
+#-----Ericsson Catalog Manager - Run the SQL Files and Upgrade Database-------#
+##############################################################################
+
+  - name: Create folder where we will place upgrade SQL
+    file:
+      path: '{{ ecm_upgrade_dir }}'
+      state: directory
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+
+  - debug:
+      msg: './generateUpgradeSQL.sh {{ ecm_database_string }} {{ ecm_app_name }} {{ ecm_app_version }} {{ ecm_metadata_path }} {{ ecm_sql_file_before }} {{ ecm_single_file }}'
+
+  - name: Run the generateUpgradeSQL.sh
+    shell: './generateUpgradeSQL.sh {{ ecm_database_string }} {{ ecm_app_name }} {{ ecm_app_version }} {{ ecm_metadata_path }} {{ ecm_sql_file_before }} {{ ecm_single_file }}'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/designer/env'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'generateUpgradeSQL_sh'
+    ignore_errors: True
+    # when: deploy_to_env == 'DEV1'
+
+  - name: Save log from generateUpgradeSQL.sh command
+    copy:
+      content: "{{ generateUpgradeSQL_sh.stdout }}"
+      dest: "{{ log_dir_eocecm }}/{{ ecm_file_name }}-generateUpgradeSQL_sh_{{ date_and_time }}.log"
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    # when: deploy_to_env == 'DEV1'
+
+  - name: Add command we used in previous task to log
+    blockinfile:
+      path: "{{ log_dir_eocecm }}/{{ ecm_file_name }}-generateUpgradeSQL_sh_{{ date_and_time }}.log"
+      block: |
+        ##################################################################################################################################################
+        ####### {{ generateUpgradeSQL_sh.cmd }} #######
+        ##################################################################################################################################################
+      marker: "\n# {mark} ANSIBLE MANAGED BLOCK\n"
+      insertbefore: BOF
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    # when: deploy_to_env == 'DEV1'
+
+##########################Execute Upgrade SQL##################################
+  # - debug:
+  #     msg: './run_EDB_DDL_via_cmd_line_linux.sh {{ ecm_db_host }} 5444 {{ ecm_db_user }} {{ ecm_db_pass }} {{ ecm_db_database }} {{ ecm_sql_file_before }} {{ log_dir_eocecm }}/{{ ecm_file_name }}-run_EDB_DDL_via_cmd_line_linux_{{ date_and_time }}.log'
+
+  - name: Check is upgrade SQL generated.
+    stat:
+      path: '{{ ecm_sql_file_before }}'
+    register: upgrade_sql
+
+  - debug:
+      msg: "SQL for upgrade is generated!"
+    when: upgrade_sql.stat.isreg is defined
+
+  - debug:
+      msg: "SQL for upgrade is not generated!"
+    when: upgrade_sql.stat.isreg is not defined
+
+  - name: Run generated SQL File and upgrade database
+    shell: './run_EDB_DDL_via_cmd_line_linux.sh {{ ecm_db_host }} 5444 {{ ecm_db_user }} {{ ecm_db_pass }} {{ ecm_db_database }} {{ ecm_sql_file_before }} {{ log_dir_eocecm }}/{{ ecm_file_name }}-run_EDB_DDL_via_cmd_line_linux_{{ date_and_time }}.log'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/DDL/edb'
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      # JAVA_HOME: '{{ folder_dest }}/java/current_jdk'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+      # LSHOST: "no001ecmdev"
+      # LSFORCEHOST: "no001ecmdev"
+      # LSERVRC: "/app/Sentinel/SentinelRMSServer8.6.2/Linux/bin/lservrc"
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    # ignore_errors: True
+    when: upgrade_sql.stat.isreg is defined
+    # when: deploy_to_env == 'DEV1' and generateUpgradeSQL_sh.stdout.find("Upgrade script generated") != -1
+
+############################ AFTER UPGRADE Check ######################################
+  - name: Run generated SQL File and upgrade database - AFTER UPGRADE Check
+    shell: './generateUpgradeSQL.sh {{ ecm_database_string }} {{ ecm_app_name }} {{ ecm_app_version }} {{ ecm_metadata_path }} {{ ecm_sql_file_after }} {{ ecm_single_file }}'
+    args:
+      chdir: '{{ symlink_ecm_dir }}/designer/env'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'generateUpgradeSQL_sh_after'
+    # ignore_errors: True
+    when: upgrade_sql.stat.isreg is defined
+
+  - name: Save log from generateUpgradeSQL.sh command - AFTER UPGRADE Check
+    copy:
+      content: "{{ generateUpgradeSQL_sh_after.stdout }}"
+      dest: "{{ log_dir_eocecm }}/{{ ecm_file_name }}-generateUpgradeSQL_sh_AFTER_{{ date_and_time }}.log"
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    when: upgrade_sql.stat.isreg is defined
+
+  - name: Add command we used in previous task to log - AFTER UPGRADE Check
+    blockinfile:
+      path: "{{ log_dir_eocecm }}/{{ ecm_file_name }}-generateUpgradeSQL_sh_AFTER_{{ date_and_time }}.log"
+      block: |
+        ##################################################################################################################################################
+        ####### {{ generateUpgradeSQL_sh_after.cmd }} #######
+        ##################################################################################################################################################
+      marker: "\n# {mark} ANSIBLE MANAGED BLOCK\n"
+      insertbefore: BOF
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    when: upgrade_sql.stat.isreg is defined
+
+  - name: Check is upgrade SQL generated now.
+    stat:
+      path: '{{ ecm_sql_file_after }}'
+    register: upgrade_sql_after
+    when: upgrade_sql.stat.isreg is defined
+
+  - name: Confirmation that execution on DB was successful - AFTER UPGRADE Check
+    debug:
+      msg: "DB upgrade was successful."
+    when: upgrade_sql.stat.isreg is defined and upgrade_sql_after.stat.isreg is not defined
+    ignore_errors: True

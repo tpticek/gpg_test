@@ -1,0 +1,46 @@
+---
+  - name: Deploy ECM
+    hosts: ecm_local_test
+    tasks:
+      # - name: Touch a file
+      #   file:
+      #     path: /tmp/{{ item }}.txt
+      #     state: touch
+      #     mode: 755
+      #   with_items: "{{ list_test }}"
+      #   run_once: true
+      #   become: yes
+      - name: List SQLs ONE TIME files - short
+        shell: "ls -1 *_OneTimeExecution_.sql"
+        args:
+          chdir: /app/working_dir_cicd/repo/01-SQL/EOC
+        ignore_errors: True
+        register: 'list_oneTime_short'
+
+      - debug:
+          var: list_oneTime_short
+        # when: upgrade_sql.stat.isreg is not defined
+
+      - name: List SQLs ONE TIME files - path
+        shell: ls -1 /app/working_dir_cicd/repo/01-SQL/EOC/*_OneTimeExecution_.sql
+        ignore_errors: True
+        register: 'list_oneTime_path'
+
+      - debug:
+          var: list_oneTime_path
+        # when: upgrade_sql.stat.isreg is not defined
+
+
+      # - name: Add a line to a file if the file does not exist, without passing regexp
+      #   lineinfile:
+      #     path: /tmp/testfile
+      #     line: "\ir "
+      #     create: yes
+      #   with_items: "{{ list_oneTime_path }}"
+
+      - name: Execute COMMAND
+        shell: "touch {{ item }}.ONE_TIME_ONLY_2 && mkdir -p /tmp/tracking/track && touch /tmp/tracking/track/{{ item }}.track"
+        args:
+          chdir: /tmp
+          creates: "/tmp/tracking/track/{{ item }}.track"
+        with_items: "{{ list_oneTime_short.stdout_lines }}"

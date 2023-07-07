@@ -1,0 +1,48 @@
+---
+# # stop EOC i ECM DONE - možda bi mogli stavit u role pa da samo dodajem kao varijablu šta se gasi
+  # - name: Stop EOC
+  #   hosts: eoc
+  #   # become: yes
+  #   roles:
+  #     # - role: deploy_metadata_eoc
+  #     - jboss_stop_eoc
+  #     #OK
+  #     # - jboss_start_eoc
+  #     # - deploy_metadata_eoc
+  #     # - jboss_start_eoc
+
+
+  - name: Deploy ECM and EOC
+    hosts: ecm
+    # become: yes
+    roles:
+      # - role: deploy_metadata_eoc
+      # - jboss_stop_ecm
+      #OK
+      # - jboss_start_eoc
+      - deploy_metadata_eoc
+      - deploy_metadata_ecm
+      # - jboss_start_eoc
+
+  #
+  # - name: Start ECM
+  #   hosts: ecm
+  #   # become: yes
+  #   roles:
+  #     # - role: deploy_metadata_eoc
+  #     # - jboss_stop_ecm
+  #     #OK
+  #     - jboss_start_ecm
+  #     # - deploy_metadata_eoc
+  #     # - jboss_start_eoc
+  #
+  # - name: Start EOC
+  #   hosts: eoc
+  #   # become: yes
+  #   roles:
+  #     # - role: deploy_metadata_eoc
+  #     # - jboss_stop_eoc
+  #     #OK
+  #     - jboss_start_eoc
+  #     # - deploy_metadata_eoc
+  #     # - jboss_start_eoc

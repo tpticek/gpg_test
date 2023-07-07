@@ -1,0 +1,200 @@
+---
+  - name: Deploy ECM
+    hosts: "{{ variable_host_ecm }}"
+    serial: 1
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    roles:
+      - role: preparation_server
+        when: ecm_deploy == 'yes'
+
+      - role: catalog_import_ecm
+        when: ecm_deploy == 'yes' and ecm_catalog_import == 'yes' and hostvars['DUMMY_ECM']['DUMMY_REPO_CATALOG_REG'] and hostvars['DUMMY_ECM']['DUMMY_DIFF_CATALOG_RESULT']
+        # when: ecm_deploy == 'yes' and ecm_catalog_import == 'yes' and repo_catalog_reg.stat.exists == true and diff_catalog_result.changed
+
+      - role: deploy_metadata_ecm
+        when: ecm_deploy == 'yes' and hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT']
+        # when: ecm_deploy == 'yes' and diff_ecm_result.changed
+
+      - role: config_import_ecm
+        when: ecm_deploy == 'yes' and hostvars['DUMMY_ECM']['DUMMY_REPO_ECM_CONFIG_REG'] and hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT']
+        # when: ecm_deploy == 'yes' and repo_ecm_config_reg.stat.isreg is defined and diff_ecm_config_result.changed
+
+      - role: execute_one_time_sql_ecm
+        when: ecm_deploy == 'yes' and hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_SQL_RESULT']
+        # when: ecm_deploy == 'yes' and diff_ecm_sql_result.changed
+
+      - role: execute_custom_sql_ecm
+        when: ecm_deploy == 'yes' and hostvars['DUMMY_ECM']['DUMMY_REPO_ECM_MAIN_SQL_CHECK'] and hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_SQL_RESULT']
+        # when: ecm_deploy == 'yes' and repo_ecm_main_sql_check.stat.isreg is defined and diff_ecm_sql_result.changed
+
+      - role: repo_init_state
+        when: ecm_deploy == 'yes'
+
+
+  - name: Deploy EOC
+    hosts: "{{ variable_host_eoc }}"
+    serial: 1
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    roles:
+      - role: preparation_server
+        when: eoc_deploy == 'yes'
+
+      - role: deploy_metadata_eoc
+        when: eoc_deploy == 'yes' and hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_RESULT']
+        # when: eoc_deploy == 'yes' and diff_eoc_result.changed
+
+      - role: config_import_eoc
+        when: eoc_deploy == 'yes' and hostvars['DUMMY_EOC']['DUMMY_REPO_EOC_CONFIG_REG'] and hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_CONFIG_RESULT']
+        # when: eoc_deploy == 'yes' and repo_eoc_config_reg.stat.isreg is defined and diff_eoc_config_result.changed
+
+      - role: execute_one_time_sql_eoc
+        when: eoc_deploy == 'yes' and hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_SQL_RESULT']
+        # when: eoc_deploy == 'yes' and diff_eoc_sql_result.changed
+
+      - role: execute_custom_sql_eoc
+        when: eoc_deploy == 'yes' and hostvars['DUMMY_EOC']['DUMMY_REPO_EOC_MAIN_SQL_CHECK'] and hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_SQL_RESULT']
+        # when: eoc_deploy == 'yes' and repo_eoc_main_sql_check.stat.isreg is defined and diff_eoc_sql_result.changed
+
+      - role: repo_init_state
+        when: eoc_deploy == 'yes'
+
+
+
+
+############### RESTART SIDE A ###############
+
+  - name: Restart ECM
+    hosts: "{{ variable_host_ecm_group_sideA }}"
+    serial: 1
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    roles:
+      # Stop EOC if deployment is on ECM
+      - role: jboss_stop_ecm
+        when:
+          - ecm_deploy == 'yes'
+          - hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT'] # if deployment is on ECM then restart
+          # - diff_ecm_result.changed or diff_ecm_config_result.changed # if deployment is on ECM then restart
+
+      - role: jboss_start_ecm
+        when:
+          - ecm_deploy == 'yes'
+          - hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT'] # if deployment is on ECM then restart
+          # - diff_ecm_result.changed or diff_ecm_config_result.changed # if deployment is on ECM then restart
+      # start EOC if deployment is on ECM
+
+  - name: Restart EOC
+    hosts: "{{ variable_host_eoc_group_sideA }}"
+    serial: 1
+    vars:
+      java_home_var: '{{ folder_dest }}/java/current_jdk'
+    environment:
+      JAVA_HOME: '{{ java_home_var }}'
+      PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+      EDBHOME: /usr/edb/as11
+      PGDATA: /usr/edb/as11/data
+      PGLOCALEDIR: /usr/edb/as11/share/locale
+    roles:
+      - role: jboss_stop_eoc
+        when:
+          - eoc_deploy == 'yes'
+          - hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_RESULT'] or hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_CONFIG_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_CATALOG_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT']
+          # - diff_eoc_result.changed or diff_eoc_config_result.changed or diff_ecm_result.changed or diff_catalog_result.changed or diff_ecm_config_result.changed
+
+      # - role: deploy_om_war
+      #   when: eoc_deploy == 'yes' and eoc_nodeid_order_manager is defined
+      #   # when: eoc_deploy == 'yes'
+      #
+      # - role: deploy_sr_war
+      #   when: eoc_deploy == 'yes' and eoc_nodeid_service_registry is defined
+      #   # when: eoc_deploy == 'yes'
+
+      - role: jboss_start_eoc
+        when:
+          - eoc_deploy == 'yes'
+          - hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_RESULT'] or hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_CONFIG_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_CATALOG_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT']
+          # - diff_eoc_result.changed or diff_eoc_config_result.changed or diff_ecm_result.changed or diff_catalog_result.changed or diff_ecm_config_result.changed
+
+# ############### RESTART SIDE B ###############
+
+#   - name: Restart ECM
+#     hosts: "{{ variable_host_ecm_group_sideB }}"
+#     serial: 1
+#     vars:
+#       java_home_var: '{{ folder_dest }}/java/current_jdk'
+#     environment:
+#       JAVA_HOME: '{{ java_home_var }}'
+#       PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+#       EDBHOME: /usr/edb/as11
+#       PGDATA: /usr/edb/as11/data
+#       PGLOCALEDIR: /usr/edb/as11/share/locale
+#     roles:
+#       # Stop EOC if deployment is on ECM
+#       - role: jboss_stop_ecm
+#         when:
+#           - ecm_deploy == 'yes'
+#           - hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT'] # if deployment is on ECM then restart
+#           # - diff_ecm_result.changed or diff_ecm_config_result.changed # if deployment is on ECM then restart
+
+#       - role: jboss_start_ecm
+#         when:
+#           - ecm_deploy == 'yes'
+#           - hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT'] # if deployment is on ECM then restart
+#           # - diff_ecm_result.changed or diff_ecm_config_result.changed # if deployment is on ECM then restart
+#       # start EOC if deployment is on ECM
+
+
+#   - name: Restart EOC
+#     hosts: "{{ variable_host_eoc_group_sideB }}"
+#     serial: 1
+#     vars:
+#       java_home_var: '{{ folder_dest }}/java/current_jdk'
+#     environment:
+#       JAVA_HOME: '{{ java_home_var }}'
+#       PATH: '{{ java_home_var }}/bin:/usr/edb/as11/bin:{{ ansible_env.PATH }}'
+#       EDBHOME: /usr/edb/as11
+#       PGDATA: /usr/edb/as11/data
+#       PGLOCALEDIR: /usr/edb/as11/share/locale
+#     roles:
+#       - role: jboss_stop_eoc
+#         when:
+#           - eoc_deploy == 'yes'
+#           - hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_RESULT'] or hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_CONFIG_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_CATALOG_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT']
+#           # - diff_eoc_result.changed or diff_eoc_config_result.changed or diff_ecm_result.changed or diff_catalog_result.changed or diff_ecm_config_result.changed
+
+#       # - role: deploy_om_war
+#       #   when: eoc_deploy == 'yes' and eoc_nodeid_order_manager is defined
+#       #   # when: eoc_deploy == 'yes'
+#       #
+#       # - role: deploy_sr_war
+#       #   when: eoc_deploy == 'yes' and eoc_nodeid_service_registry is defined
+#       #   # when: eoc_deploy == 'yes'
+
+#       - role: jboss_start_eoc
+#         when:
+#           - eoc_deploy == 'yes'
+#           - hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_RESULT'] or hostvars['DUMMY_EOC']['DUMMY_DIFF_EOC_CONFIG_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_CATALOG_RESULT'] or hostvars['DUMMY_ECM']['DUMMY_DIFF_ECM_CONFIG_RESULT']
+#           # - diff_eoc_result.changed or diff_eoc_config_result.changed or diff_ecm_result.changed or diff_catalog_result.changed or diff_ecm_config_result.changed
+
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_deploy_HA.yml -v --extra-vars "variable_host_ecm=no002ecmpprod-a variable_host_eoc=no004eocpprod-a variable_host_ecm_group_sideA=Telia_NO_PREPROD_SOM_ecm_sideA variable_host_eoc_group_sideA=Telia_NO_PREPROD_SOM_eoc_sideA variable_host_ecm_group_sideB=Telia_NO_PREPROD_SOM_ecm_sideB variable_host_eoc_group_sideB=Telia_NO_PREPROD_SOM_eoc_sideB git_commit_id=${bamboo.planRepository.1.revision}"

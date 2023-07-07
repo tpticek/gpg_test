@@ -1,0 +1,37 @@
+---
+###############################################################################
+#----------Ericsson Order Care - Deploy Application -------------#
+###############################################################################
+
+  - name: Deploy Metadata using deploy.sh command
+    shell: './deploy.sh {{ eoc_database_string }} {{ eoc_app_name }} {{ eoc_app_version }} {{ eoc_metadata_path }} {{ eoc_create_DB_app }} {{ eoc_generate_wsdl }}'
+    args:
+      chdir: '{{ symlink_eoc_dir }}/designer/env'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    register: 'deploy_sh'
+    # ignore_errors: True
+
+
+  - name: Save log from command
+    copy:
+      content: "{{ deploy_sh.stdout }}"
+      dest: "{{ log_dir_eocecm }}/{{ eoc_file_name }}-deploy_sh_{{ date_and_time }}.log"
+      mode: '0775'
+      owner: '{{ user_for_eocecm }}'
+      group: '{{ group_for_eocecm }}'
+    become: yes
+    become_user: '{{ user_for_eocecm }}'
+    # when: deploy_to_env == 'DEV1'
+
+  - name: Add command we used in previous task to log
+    blockinfile:
+      path: "{{ log_dir_eocecm }}/{{ eoc_file_name }}-deploy_sh_{{ date_and_time }}.log"
+      block: |
+        ##################################################################################################################################################
+        ####### {{ deploy_sh.cmd }} #######
+        ##################################################################################################################################################
+      marker: "\n# {mark} ANSIBLE MANAGED BLOCK\n"
+      insertbefore: BOF
+    become: yes
+    become_user: '{{ user_for_eocecm }}'

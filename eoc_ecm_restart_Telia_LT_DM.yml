@@ -1,0 +1,31 @@
+---
+  - name: Sentinel Service
+    hosts: srv-t-eocappdm1
+    tasks:
+      - name: Start Sentinel service, if not started
+        service:
+          name: sentinel
+          state: started
+        become: yes
+
+  - name: Stop EOC
+    hosts: srv-t-eocappdm1
+    roles:
+      - jboss_stop_eoc
+
+  - name: Stop ECM
+    hosts: srv-t-ecmappdm1
+    roles:
+      - jboss_stop_ecm
+
+  - name: Start ECM
+    hosts: srv-t-ecmappdm1
+    roles:
+      - jboss_start_ecm
+
+  - name: Start EOC
+    hosts: srv-t-eocappdm1
+    roles:
+      - jboss_start_eoc
+
+# ansible-playbook -i inventory-eocecm eoc_ecm_restart_Telia_LT_DM.yml -v
