@@ -12,6 +12,11 @@ jobs:
         with:
           ref: ansible
           path: ansible-files
+          
+      - name: Check current folder
+        run: |
+          pwd
+          ls -alh
 
       - name: Check ansible folder
         run: |
